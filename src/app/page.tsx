@@ -1,23 +1,59 @@
-'use client';
+// app/page.jsx
+'use client'
 
-import Image from 'next/image';
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabaseClient'
+import Image from 'next/image'
+import { User } from '@supabase/supabase-js'
+import { useLogout } from '@/lib/logout'
+
 
 export default function Home() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+
+  // 認証チェック
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setUser(session.user)
+      } else {
+        router.push('/routing/login')  // ← 未ログインならloginページへ
+      }
+      setLoading(false)
+    }
+    checkAuth()
+  }, [router])
+
+  const { logout } = useLogout()
+  
+
+
+  if (loading) return <p>読み込み中...</p>
+
   return (
     <div className="min-h-screen bg-white flex flex-col items-center p-6 sm:p-12 font-sans">
       {/* ヘッダー */}
       <header className="w-full flex justify-between items-center max-w-6xl">
         <div className="text-3xl font-bold text-purple-600">IT就労 ビズウェル</div>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
-        <a href="/">ホーム</a>
-        <a href="/routing/tanto">担当者一覧</a>
-        <a href="/routing/kankei">関係機関一覧</a>
-        <a href="/routing/kubun">区分一覧</a>
-        <a href="/routing/area">エリア一覧</a>
-        <a href="/routing/login">ログイン</a>
-        <a href="/routing/shinkitouroku">新規登録</a>
+          <a href="/">ホーム</a>
+          <a href="/routing/tanto">担当者一覧</a>
+          <a href="/routing/kankei">関係機関一覧</a>
+          <a href="/routing/kubun">区分一覧</a>
+          <a href="/routing/area">エリア一覧</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); logout() }}>
+    ログアウト
+  </a>
+          <a href="/routing/shinkitouroku">新規登録</a>
         </nav>
       </header>
+
+      {/* 認証済みユーザー表示 */}
+      <p className="mt-4 text-green-600">ようこそ {user?.email} さん！</p>
 
       {/* 検索と新規登録 */}
       <div className="mt-6 flex items-center space-x-4">
@@ -45,14 +81,9 @@ export default function Home() {
           </ul>
         </div>
         <div className="sm:w-1/3 w-full flex justify-center">
-          <Image
-            src="/robot.png" // 公開ディレクトリに画像を置いてください
-            alt="ロボット"
-            width={120}
-            height={120}
-          />
+          <Image src="/robot.png" alt="ロボット" width={120} height={120} />
         </div>
       </main>
     </div>
-  );
+  )
 }

@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { twMerge } from "tailwind-merge";
 import { clsx } from "clsx";
 import { supabase } from '@/lib/supabaseClient';
+import { useLogout } from '@/lib/logout'
+import Link from 'next/link';
 
 interface FormData {
   kubun: string;
@@ -43,16 +45,15 @@ export default function RoutingFormPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // SupabaseにINSERT
-    const { error } = await supabase.from('contacts').insert([formData]);
-
-    if (error) {
-      console.error('Insert Error', error);
-      alert('登録に失敗しました');
-    } else {
+  
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+  
+    if (res.ok) {
       alert('登録に成功しました');
-      // フォームの初期化
       setFormData({
         kubun: '',
         kankei: '',
@@ -65,22 +66,29 @@ export default function RoutingFormPage() {
         address: '',
         memo: ''
       });
+    } else {
+      const data = await res.json();
+      console.error('Insert Error', data.error);
+      alert('登録に失敗しました');
     }
   };
+  
 
+  const { logout } = useLogout()
+  
   return (
     <div className="min-h-screen bg-green-100 p-6 sm:p-12 font-sans">
       {/* ヘッダー */}
       <header className="w-full flex flex-col sm:flex-row justify-between items-center max-w-6xl mx-auto">
         <div className="text-3xl font-bold text-purple-600">IT就労 ビズウェル</div>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base mt-4 sm:mt-0">
-        <a href="/">ホーム</a>
-        <a href="/routing/tanto">担当者一覧</a>
-        <a href="/routing/kankei">関係機関一覧</a>
-        <a href="/routing/kubun">区分一覧</a>
-        <a href="/routing/area">エリア一覧</a>
-        <a href="/routing/login">ログイン</a>
-        <a href="/routing/shinkitouroku">新規登録</a>
+        <Link href="/">ホーム</Link>
+          <Link href="/routing/tanto">担当者一覧</Link>
+          <Link href="/routing/kankei">関係機関一覧</Link>
+          <Link href="/routing/kubun">区分一覧</Link>
+          <Link href="/routing/area">エリア一覧</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
+        <Link href="/routing/shinkitouroku">新規登録</Link>
         </nav>
       </header>
 

@@ -1,40 +1,39 @@
-'use client';
+'use client'
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabaseClient"; // ← 必ず supabaseClient を用意しておく
+import { useLogout } from '@/lib/logout'
+import Link from 'next/link';
 
-export interface Contact {
-  id: number;
-  kubun: string;
-  area: string;
-  kankei: string;
-  tanto: string;
-  tel: string;
-  mobile: string;
-  email: string;
+interface Contact {
+  BusinessCardID: number;
+  Category?: { CategoryName?: string | null } | null;
+  Region?: { RegionName?: string | null } | null;
+  Organization?: { OrganizationName?: string | null } | null;
+  Representative?: { RepresentativeName?: string | null } | null;
+  Phone?: string | null;
+  Mobile?: string | null;
+  Email?: string | null;
 }
 
 export default function CategoryListPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
 
-  // --- データ取得 ---
   useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase
-        .from('contacts')
-        .select('id, kubun, area, kankei, tanto, tel, mobile, email')
-        .order('id', { ascending: true });
-
-      if (error) {
-        console.error("データ取得エラー", error);
-      } else {
-        setContacts(data || []);
+    (async () => {
+      try {
+        const res = await fetch('/api/contact');
+        if (!res.ok) throw new Error("API Error");
+        const data = await res.json();
+        setContacts(data);
+      } catch (err) {
+        console.error("データ取得エラー", err);
+        alert('データの取得に失敗しました');
       }
-    };
-
-    fetchData();
+    })();
   }, []);
+
+  const { logout } = useLogout()
 
   return (
     <div className="p-4 bg-green-100 min-h-screen">
@@ -42,33 +41,25 @@ export default function CategoryListPage() {
       <header className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-purple-700">IT就労 ビズウェル</h1>
         <nav className="space-x-4 text-pink-600">
-        <a href="/">ホーム</a>
-        <a href="/routing/tanto">担当者一覧</a>
-        <a href="/routing/kankei">関係機関一覧</a>
-        <a href="/routing/kubun">区分一覧</a>
-        <a href="/routing/area">エリア一覧</a>
-        <a href="/routing/login">ログイン</a>
-        <a href="/routing/shinkitouroku">新規登録</a>
+          <Link href="/">ホーム</Link>
+          <Link href="/routing/tanto">担当者一覧</Link>
+          <Link href="/routing/kankei">関係機関一覧</Link>
+          <Link href="/routing/kubun">区分一覧</Link>
+          <Link href="/routing/area">エリア一覧</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
+          <Link href="/routing/shinkitouroku">新規登録</Link>
         </nav>
       </header>
 
       {/* ボタン・検索 */}
       <div className="flex items-center justify-between mb-4">
-        <Button className="bg-yellow-300 text-black">新規登録</Button>
-        <Button className="bg-purple-400 text-white">担当者一覧（全体）</Button>
+        <Link href="/routing/shinkitouroku">
+          <Button className="bg-yellow-300 text-black">新規登録</Button>
+        </Link>
+        <Link href="/routing/tanto">
+          <Button className="bg-purple-400 text-white">担当者一覧（全体）</Button>
+        </Link>
         <input type="text" placeholder="検索" className="ml-4 px-2 py-1 border rounded" />
-      </div>
-
-      {/* カテゴリボタン */}
-      <div className="mb-2 space-x-2 flex flex-wrap items-center">
-        <Button className="bg-blue-600 text-white">全体</Button>
-        <Button className="bg-yellow-300 text-black">関係機関</Button>
-        <Button className="bg-orange-300 text-black">行政</Button>
-        <Button className="bg-orange-200 text-black">相談支援</Button>
-        <Button className="bg-orange-100 text-black">就労支援</Button>
-        <Button className="bg-red-500 text-white">企業</Button>
-        <Button className="bg-red-400 text-white">就職先</Button>
-        <Button className="bg-red-300 text-white">実習先</Button>
       </div>
 
       {/* テーブル */}
@@ -89,14 +80,14 @@ export default function CategoryListPage() {
           </thead>
           <tbody>
             {contacts.map((item) => (
-              <tr key={item.id} className="text-center border-t">
-                <td>{item.kubun}</td>
-                <td>{item.area}</td>
-                <td>{item.kankei}</td>
-                <td>{item.tanto}</td>
-                <td>{item.tel}</td>
-                <td>{item.mobile}</td>
-                <td>{item.email}</td>
+              <tr key={item.BusinessCardID} className="text-center border-t">
+                <td>{item.Category?.CategoryName || ''}</td>
+                <td>{item.Region?.RegionName || ''}</td>
+                <td>{item.Organization?.OrganizationName || ''}</td>
+                <td>{item.Representative?.RepresentativeName || ''}</td>
+                <td>{item.Phone || ''}</td>
+                <td>{item.Mobile || ''}</td>
+                <td>{item.Email || ''}</td>
                 <td><Button className="bg-blue-500 text-white">確認・編集</Button></td>
                 <td><Button className="bg-red-500 text-white">削除</Button></td>
               </tr>
