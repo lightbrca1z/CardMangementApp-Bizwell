@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabaseClient'
 import Image from 'next/image'
 import { User } from '@supabase/supabase-js'
 import { useLogout } from '@/lib/logout'
+import Link from 'next/link'
 
 
 export default function Home() {
@@ -40,7 +41,9 @@ export default function Home() {
       <header className="w-full flex justify-between items-center max-w-6xl">
         <div className="text-3xl font-bold text-purple-600">IT就労 ビズウェル</div>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
-          <a href="/">ホーム</a>
+          <Link href="/" className="text-pink-700 hover:text-pink-900">
+            ホーム
+          </Link>
           <a href="/routing/tanto">担当者一覧</a>
           <a href="/routing/kankei">関係機関一覧</a>
           <a href="/routing/kubun">区分一覧</a>

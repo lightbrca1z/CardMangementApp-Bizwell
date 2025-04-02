@@ -1,18 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLogout } from '@/lib/logout';
+import Link from 'next/link';
 
 import { twMerge } from "tailwind-merge";
 
 import { clsx } from "clsx";
 
-import { useLogout } from '@/lib/logout'
+interface Area {
+  RegionID: number;
+  RegionName: string;
+}
 
-import Link from 'next/link';
-
-
-export default function CategoryListPage() {
+export default function AreaListPage() {
   const data = [
     {
       category: "行政機関",
@@ -33,13 +35,13 @@ export default function CategoryListPage() {
       <header className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-purple-700">IT就労 ビズウェル</h1>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
-          <a href="/">ホーム</a>
-          <a href="/routing/tanto">担当者一覧</a>
-          <a href="/routing/kankei">関係機関一覧</a>
-          <a href="/routing/kubun">区分一覧</a>
-          <a href="/routing/area">エリア一覧</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</a>
-          <a href="/routing/shinkitouroku">新規登録</a>
+          <Link href="/">ホーム</Link>
+          <Link href="/routing/tanto">担当者一覧</Link>
+          <Link href="/routing/kankei">関係機関一覧</Link>
+          <Link href="/routing/kubun">区分一覧</Link>
+          <Link href="/routing/area">エリア一覧</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
+          <Link href="/routing/shinkitouroku">新規登録</Link>
         </nav>
       </header>
 

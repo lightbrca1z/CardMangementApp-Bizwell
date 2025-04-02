@@ -1,10 +1,10 @@
 // src/app/routing/kankei/page.tsx]
 "use client"; // ← Client Component化
 
-import { prisma } from "@/lib/prisma";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useLogout } from "@/lib/logout";
+import { useLogout } from '@/lib/logout';
+import Link from 'next/link';
 
 // ---------------------------
 // ▼ 型定義
@@ -20,27 +20,41 @@ interface BusinessCardData {
   Email: string;
 }
 
+interface Organization {
+  OrganizationID: number;
+  OrganizationName: string;
+}
+
 // ---------------------------
 // ▼ Server Component
 // ---------------------------
-export default async function CategoryListPage() {
-  const data = await prisma.businessCard.findMany({
-    include: {
-      Category: true,
-      Region: true,
-      Organization: true,
-      Representative: true,
-    },
-  });
+export default function OrganizationListPage() {
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const { logout } = useLogout();
 
-  return <ClientComponent data={data} />;
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const res = await fetch('/api/organization');
+        if (!res.ok) throw new Error("API Error");
+        const data = await res.json();
+        setOrganizations(data);
+      } catch (err) {
+        console.error("データ取得エラー", err);
+        alert('データの取得に失敗しました');
+      }
+    };
+
+    fetchOrganizations();
+  }, []);
+
+  return <ClientComponent organizations={organizations} />;
 }
 
 // ---------------------------
 // ▼ Client Component
 // ---------------------------
-function ClientComponent({ data }: { data: BusinessCardData[] }) {
-
+function ClientComponent({ organizations }: { organizations: Organization[] }) {
   const { logout } = useLogout();
 
   const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -53,13 +67,13 @@ function ClientComponent({ data }: { data: BusinessCardData[] }) {
       <header className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-purple-700">IT就労 ビズウェル</h1>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
-          <a href="/">ホーム</a>
-          <a href="/routing/tanto">担当者一覧</a>
-          <a href="/routing/kankei">関係機関一覧</a>
-          <a href="/routing/kubun">区分一覧</a>
-          <a href="/routing/area">エリア一覧</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</a>
-          <a href="/routing/shinkitouroku">新規登録</a>
+          <Link href="/">ホーム</Link>
+          <Link href="/routing/tanto">担当者一覧</Link>
+          <Link href="/routing/kankei">関係機関一覧</Link>
+          <Link href="/routing/kubun">区分一覧</Link>
+          <Link href="/routing/area">エリア一覧</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
+          <Link href="/routing/shinkitouroku">新規登録</Link>
         </nav>
       </header>
 
@@ -85,9 +99,9 @@ function ClientComponent({ data }: { data: BusinessCardData[] }) {
             </tr>
           </thead>
           <tbody>
-            {data.map((item) => (
-              <tr key={item.BusinessCardID} className="text-center border-t">
-                <td>{item.Representative?.RepresentativeName ?? "-"}</td>
+            {organizations.map((item) => (
+              <tr key={item.OrganizationID} className="text-center border-t">
+                <td>{item.OrganizationName}</td>
                 <td>{item.Region?.RegionName ?? "-"}</td>
                 <td>{item.Organization?.OrganizationName ?? "-"}</td>
                 <td>{item.Category?.CategoryName ?? "-"}</td>
