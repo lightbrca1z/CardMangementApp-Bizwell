@@ -114,13 +114,13 @@ export default function RoutingFormPage() {
       <header className="w-full flex flex-col sm:flex-row justify-between items-center max-w-6xl mx-auto">
         <div className="text-3xl font-bold text-purple-600">IT就労 ビズウェル</div>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
-          <a href="/">ホーム</a>
-          <a href="/routing/tanto">担当者一覧</a>
-          <a href="/routing/kankei">関係機関一覧</a>
-          <a href="/routing/kubun">区分一覧</a>
-          <a href="/routing/area">エリア一覧</a>
-          <a href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</a>
-          <a href="/routing/shinkitouroku">新規登録</a>
+          <Link href="/">ホーム</Link>
+          <Link href="/routing/tanto">担当者一覧</Link>
+          <Link href="/routing/kankei">関係機関一覧</Link>
+          <Link href="/routing/kubun">区分一覧</Link>
+          <Link href="/routing/area">エリア一覧</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
+          <Link href="/routing/shinkitouroku">新規登録</Link>
         </nav>
       </header>
 
