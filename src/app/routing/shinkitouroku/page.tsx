@@ -18,6 +18,8 @@ interface FormData {
   memo: string;
 }
 
+type FormField = [keyof FormData, string, boolean];
+
 export default function RoutingFormPage() {
   const [formData, setFormData] = useState<FormData>({
     kubun: '',
@@ -36,6 +38,19 @@ export default function RoutingFormPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { logout } = useLogout();
+
+  const formFields: FormField[] = [
+    ['kubun', '区分入力', true],
+    ['kankei', '関係機関名', true],
+    ['tanto', '担当者名', true],
+    ['tel', 'TEL', true],
+    ['mobile', '携帯', false],
+    ['fax', 'FAX', false],
+    ['email', 'メール', true],
+    ['area', 'エリア', true],
+    ['address', '住所', false],
+    ['memo', '備考', false],
+  ];
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -138,19 +153,8 @@ export default function RoutingFormPage() {
         <div className="bg-purple-900 text-white p-6 rounded-xl w-full lg:w-2/3">
           <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-xl mb-4">入力フォーム</h2>
           <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-            {[
-              ['kubun', '区分入力', true],
-              ['kankei', '関係機関名', true],
-              ['tanto', '担当者名', true],
-              ['tel', 'TEL', true],
-              ['mobile', '携帯', false],
-              ['fax', 'FAX', false],
-              ['email', 'メール', true],
-              ['area', 'エリア', true],
-              ['address', '住所', false],
-              ['memo', '備考', false],
-            ].map(([name, label, required]) => (
-              <div key={name} className="flex flex-col">
+            {formFields.map(([fieldName, label, required]) => (
+              <div key={fieldName} className="flex flex-col">
                 <label className="text-white">
                   {label}
                   {required && (
@@ -159,11 +163,11 @@ export default function RoutingFormPage() {
                 </label>
                 <input
                   type="text"
-                  name={name}
-                  value={formData[name as keyof FormData]}
+                  name={fieldName}
+                  value={formData[fieldName]}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
-                    [name]: e.target.value
+                    [fieldName]: e.target.value
                   }))}
                   className="bg-white text-black p-2 rounded"
                   required={required}
