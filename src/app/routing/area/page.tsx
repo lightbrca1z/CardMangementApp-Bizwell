@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
@@ -8,11 +8,6 @@ import Link from 'next/link';
 import { twMerge } from "tailwind-merge";
 
 import { clsx } from "clsx";
-
-interface Area {
-  RegionID: number;
-  RegionName: string;
-}
 
 export default function AreaListPage() {
   const data = [
@@ -27,7 +22,7 @@ export default function AreaListPage() {
     },
   ];
 
-  const { logout } = useLogout()
+  const { logout } = useLogout();
   
 
   return (

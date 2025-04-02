@@ -6,28 +6,16 @@ import { Button } from "@/components/ui/button";
 import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
 
-// ---------------------------
-// ▼ 型定義
-// ---------------------------
-interface BusinessCardData {
-  BusinessCardID: number;
-  Representative?: { RepresentativeName: string };
+interface Organization {
+  OrganizationID: number;
+  OrganizationName: string;
   Region?: { RegionName: string };
-  Organization?: { OrganizationName: string };
   Category?: { CategoryName: string };
   Phone: string;
   Mobile: string;
   Email: string;
 }
 
-interface Organization {
-  OrganizationID: number;
-  OrganizationName: string;
-}
-
-// ---------------------------
-// ▼ Server Component
-// ---------------------------
 export default function OrganizationListPage() {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const { logout } = useLogout();
@@ -47,20 +35,6 @@ export default function OrganizationListPage() {
 
     fetchOrganizations();
   }, []);
-
-  return <ClientComponent organizations={organizations} />;
-}
-
-// ---------------------------
-// ▼ Client Component
-// ---------------------------
-function ClientComponent({ organizations }: { organizations: Organization[] }) {
-  const { logout } = useLogout();
-
-  const handleLogout = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    logout();
-  };
 
   return (
     <div className="p-4 bg-green-100 min-h-screen">
@@ -103,7 +77,7 @@ function ClientComponent({ organizations }: { organizations: Organization[] }) {
               <tr key={item.OrganizationID} className="text-center border-t">
                 <td>{item.OrganizationName}</td>
                 <td>{item.Region?.RegionName ?? "-"}</td>
-                <td>{item.Organization?.OrganizationName ?? "-"}</td>
+                <td>{item.OrganizationName}</td>
                 <td>{item.Category?.CategoryName ?? "-"}</td>
                 <td>{item.Phone}</td>
                 <td>{item.Mobile}</td>
