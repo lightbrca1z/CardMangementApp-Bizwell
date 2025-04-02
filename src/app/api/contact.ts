@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '@/lib/mysql'; // ← これを自分のDB接続に合わせて読み替えて
-import dayjs from 'dayjs';
+import { supabase } from '@/lib/supabaseClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -20,30 +19,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } = req.body;
 
   try {
-    const sql = `
-      INSERT INTO BusinessCards 
-      (CategoryID, OrganizationID, RepresentativeID, Phone, Mobile, Fax, Email, RegionID, Address, Notes, ImageURL, CreatedAt) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert([
+        {
+          CategoryID: parseInt(kubun) || null,
+          OrganizationID: parseInt(kankei) || null,
+          RepresentativeID: parseInt(tanto) || null,
+          Phone: tel || null,
+          Mobile: mobile || null,
+          Fax: fax || null,
+          Email: email || null,
+          RegionID: parseInt(area) || null,
+          Address: address || null,
+          Notes: memo || null,
+          ImageURL: imageUrl || null,
+          CreatedAt: new Date().toISOString()
+        }
+      ]);
 
-    const params = [
-      parseInt(kubun) || null,          // CategoryID
-      parseInt(kankei) || null,         // OrganizationID
-      parseInt(tanto) || null,          // RepresentativeID
-      tel || null,                      // Phone
-      mobile || null,                   // Mobile
-      fax || null,                      // Fax
-      email || null,                    // Email
-      parseInt(area) || null,           // RegionID
-      address || null,                  // Address
-      memo || null,                     // Notes
-      imageUrl || null,                 // ImageURL
-      dayjs().format('YYYY-MM-DD HH:mm:ss.SSS') // CreatedAt
-    ];
+    if (error) throw error;
 
-    await db.execute(sql, params);
-
-    res.status(200).json({ message: '登録成功' });
+    res.status(200).json({ message: '登録成功', data });
   } catch (error) {
     console.error('DBエラー', error);
     res.status(500).json({ message: '登録失敗', error });
