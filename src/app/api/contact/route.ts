@@ -16,9 +16,10 @@ export async function GET() {
       },
     });
     return NextResponse.json(contacts);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('取得エラー', error);
-    return NextResponse.json({ message: '取得失敗', error: error?.message || String(error) }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ message: '取得失敗', error: errorMessage }, { status: 500 });
   }
 }
 
@@ -87,8 +88,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: '登録成功' }, { status: 200 });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("登録エラー", error);
-    return NextResponse.json({ message: '登録失敗', error: error?.message || String(error) }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ message: '登録失敗', error: errorMessage }, { status: 500 });
   }
 }
