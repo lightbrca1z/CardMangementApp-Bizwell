@@ -1,4 +1,3 @@
-// app/api/contact/route.ts
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
@@ -12,13 +11,14 @@ export async function GET() {
         Category: true,
         Region: true,
         Organization: true,
+        Organization2: true,
         Representative: true,
       },
     });
     return NextResponse.json(contacts);
-  } catch (error) {
+  } catch (error: any) {
     console.error('取得エラー', error);
-    return NextResponse.json({ message: '取得失敗', error: String(error) }, { status: 500 });
+    return NextResponse.json({ message: '取得失敗', error: error?.message || String(error) }, { status: 500 });
   }
 }
 
@@ -26,13 +26,22 @@ export async function GET() {
 // POST (登録)
 // ---------------------
 export async function POST(req: Request) {
-  const data = await req.json();
-
-  if (!data.kubun || !data.kankei || !data.tanto || !data.area) {
-    return NextResponse.json({ message: '入力値不足' }, { status: 400 });
-  }
-
   try {
+    const data = await req.json();
+
+    // -----------------
+    // 入力バリデーション
+    // -----------------
+    const requiredFields = ['kubun', 'kankei', 'tanto', 'area'];
+    const missingFields = requiredFields.filter(field => !data[field]);
+
+    if (missingFields.length > 0) {
+      return NextResponse.json({ message: `入力値不足: ${missingFields.join(', ')}` }, { status: 400 });
+    }
+
+    // -----------------
+    // BusinessCard 登録
+    // -----------------
     await prisma.businessCard.create({
       data: {
         Category: {
@@ -45,6 +54,13 @@ export async function POST(req: Request) {
           connectOrCreate: {
             where: { OrganizationName: data.kankei },
             create: { OrganizationName: data.kankei }
+          }
+        },
+        // Organization2 も必ず空文字でもconnectOrCreate
+        Organization2: {
+          connectOrCreate: {
+            where: { OrganizationName: data.kankei2 || '未設定' },
+            create: { OrganizationName: data.kankei2 || '未設定' }
           }
         },
         Representative: {
@@ -65,13 +81,14 @@ export async function POST(req: Request) {
         Email: data.email || '',
         Address: data.address || '',
         Notes: data.memo || '',
-        ImageURL: data.imageUrl || '', 
+        ImageURL: data.imageUrl || '',
       }
     });
 
     return NextResponse.json({ message: '登録成功' }, { status: 200 });
-  } catch (error) {
+
+  } catch (error: any) {
     console.error("登録エラー", error);
-    return NextResponse.json({ message: '登録失敗', error: String(error) }, { status: 500 });
+    return NextResponse.json({ message: '登録失敗', error: error?.message || String(error) }, { status: 500 });
   }
 }
