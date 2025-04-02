@@ -34,8 +34,7 @@ export default function RoutingFormPage() {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { logout } = useLogout();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,8 +51,7 @@ export default function RoutingFormPage() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    setIsSubmitting(true);
 
     try {
       if (selectedFile) {
@@ -103,16 +101,15 @@ export default function RoutingFormPage() {
         setPreviewUrl(null);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'エラーが発生しました');
+      const errorMessage = err instanceof Error ? err.message : 'エラーが発生しました';
+      alert(errorMessage);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-green-100 p-6 sm:p-12 font-sans">
-
-      {/* ヘッダー */}
       <header className="w-full flex flex-col sm:flex-row justify-between items-center max-w-6xl mx-auto">
         <div className="text-3xl font-bold text-purple-600">IT就労 ビズウェル</div>
         <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
@@ -126,7 +123,6 @@ export default function RoutingFormPage() {
         </nav>
       </header>
 
-      {/* 新規登録 & 検索 */}
       <div className="mt-6 flex items-center justify-start max-w-6xl mx-auto space-x-4">
         <button className="bg-yellow-200 text-gray-800 px-6 py-2 rounded-full shadow-md text-lg">
           新規登録
@@ -138,10 +134,7 @@ export default function RoutingFormPage() {
         />
       </div>
 
-      {/* メイン */}
       <main className="mt-10 flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
-
-        {/* フォーム */}
         <div className="bg-purple-900 text-white p-6 rounded-xl w-full lg:w-2/3">
           <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-xl mb-4">入力フォーム</h2>
           <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -156,8 +149,8 @@ export default function RoutingFormPage() {
               ['area', 'エリア', true],
               ['address', '住所', false],
               ['memo', '備考', false],
-            ].map(([name, label, required], index) => (
-              <div key={index} className="flex flex-col">
+            ].map(([name, label, required]) => (
+              <div key={name} className="flex flex-col">
                 <label className="text-white">
                   {label}
                   {required && (
@@ -178,13 +171,16 @@ export default function RoutingFormPage() {
               </div>
             ))}
 
-            <button type="submit" className="bg-yellow-200 text-purple-700 text-xl px-10 py-3 rounded-full shadow-md hover:bg-yellow-300 transition w-full mt-4">
-              登録
+            <button 
+              type="submit" 
+              className="bg-yellow-200 text-purple-700 text-xl px-10 py-3 rounded-full shadow-md hover:bg-yellow-300 transition w-full mt-4"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '登録中...' : '登録'}
             </button>
           </form>
         </div>
 
-        {/* 画像エリア */}
         <div className="bg-purple-200 p-6 rounded-xl w-full lg:w-1/3 relative">
           <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-xl mb-4">画像登録</h2>
           <p className="text-center mb-4">名刺の画像から登録</p>
@@ -199,7 +195,6 @@ export default function RoutingFormPage() {
             <span className="text-black pointer-events-none">ファイルを選択してください</span>
           </div>
 
-          {/* 選択された画像のURL表示とプレビュー */}
           {previewUrl && (
             <div className="text-center text-sm text-purple-900 break-all space-y-2">
               <p>選択中の画像:</p>
@@ -209,9 +204,7 @@ export default function RoutingFormPage() {
               <img src={previewUrl} alt="プレビュー" className="mx-auto max-h-40 rounded shadow" />
             </div>
           )}
-
         </div>
-
       </main>
     </div>
   );
