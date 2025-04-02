@@ -2,10 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { twMerge } from "tailwind-merge";
-import { clsx } from "clsx";
-import { supabase } from '@/lib/supabaseClient';
-import { useLogout } from '@/lib/logout'
+import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
 
 interface FormData {
@@ -35,6 +32,10 @@ export default function RoutingFormPage() {
     memo: ''
   });
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
+  // 入力値変更
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -43,15 +44,45 @@ export default function RoutingFormPage() {
     }));
   };
 
+  // 画像変更
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      setImagePreviewUrl(URL.createObjectURL(file)); // プレビュー用URL生成
+    }
+  };
+
+  // フォーム送信
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
+    let imageUrl = '';
+
+    if (imageFile) {
+      const formDataImage = new FormData();
+      formDataImage.append('file', imageFile);
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataImage,
+      });
+
+      if (uploadRes.ok) {
+        const data = await uploadRes.json();
+        imageUrl = data.imageUrl; // アップロード後の画像URL
+      } else {
+        alert('画像アップロードに失敗しました');
+        return;
+      }
+    }
+
     const res = await fetch('/api/contact', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ ...formData, imageUrl }),
     });
-  
+
     if (res.ok) {
       alert('登録に成功しました');
       setFormData({
@@ -66,33 +97,34 @@ export default function RoutingFormPage() {
         address: '',
         memo: ''
       });
+      setImageFile(null);
+      setImagePreviewUrl(null);
     } else {
       const data = await res.json();
-      console.error('Insert Error', data.error);
       alert('登録に失敗しました');
     }
   };
-  
 
-  const { logout } = useLogout()
-  
+  const { logout } = useLogout();
+
   return (
     <div className="min-h-screen bg-green-100 p-6 sm:p-12 font-sans">
+
       {/* ヘッダー */}
       <header className="w-full flex flex-col sm:flex-row justify-between items-center max-w-6xl mx-auto">
         <div className="text-3xl font-bold text-purple-600">IT就労 ビズウェル</div>
-        <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base mt-4 sm:mt-0">
-        <Link href="/">ホーム</Link>
-          <Link href="/routing/tanto">担当者一覧</Link>
-          <Link href="/routing/kankei">関係機関一覧</Link>
-          <Link href="/routing/kubun">区分一覧</Link>
-          <Link href="/routing/area">エリア一覧</Link>
-          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
-        <Link href="/routing/shinkitouroku">新規登録</Link>
+        <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
+          <a href="/">ホーム</a>
+          <a href="/routing/tanto">担当者一覧</a>
+          <a href="/routing/kankei">関係機関一覧</a>
+          <a href="/routing/kubun">区分一覧</a>
+          <a href="/routing/area">エリア一覧</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</a>
+          <a href="/routing/shinkitouroku">新規登録</a>
         </nav>
       </header>
 
-      {/* 新規登録ボタンと検索 */}
+      {/* 新規登録 & 検索 */}
       <div className="mt-6 flex items-center justify-start max-w-6xl mx-auto space-x-4">
         <button className="bg-yellow-200 text-gray-800 px-6 py-2 rounded-full shadow-md text-lg">
           新規登録
@@ -104,9 +136,10 @@ export default function RoutingFormPage() {
         />
       </div>
 
-      {/* メイン：フォームと画像登録 */}
+      {/* メイン */}
       <main className="mt-10 flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
-        {/* 入力フォーム */}
+
+        {/* フォーム */}
         <div className="bg-purple-900 text-white p-6 rounded-xl w-full lg:w-2/3">
           <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-xl mb-4">入力フォーム</h2>
           <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -139,30 +172,41 @@ export default function RoutingFormPage() {
                 />
               </div>
             ))}
+
             <button type="submit" className="bg-yellow-200 text-purple-700 text-xl px-10 py-3 rounded-full shadow-md hover:bg-yellow-300 transition w-full mt-4">
               登録
             </button>
           </form>
         </div>
 
-        {/* 画像登録エリア */}
+        {/* 画像エリア */}
         <div className="bg-purple-200 p-6 rounded-xl w-full lg:w-1/3 relative">
           <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-xl mb-4">画像登録</h2>
           <p className="text-center mb-4">名刺の画像から登録</p>
-          <div className="border border-gray-400 bg-white text-center py-10 rounded">
-            <span className="text-black">ファイルを選択</span>
+          <div className="border border-gray-400 bg-white text-center py-10 rounded relative cursor-pointer mb-4">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              title=""
+            />
+            <span className="text-black pointer-events-none">ファイルを選択してください</span>
           </div>
 
-          {/* ロボット画像（右上） */}
-          <div className="absolute -top-8 right-4">
-            <Image
-              src="/robot.png"
-              alt="ロボット"
-              width={60}
-              height={60}
-            />
-          </div>
+          {/* 選択された画像のURL表示とプレビュー */}
+          {imagePreviewUrl && (
+            <div className="text-center text-sm text-purple-900 break-all space-y-2">
+              <p>選択中の画像:</p>
+              <a href={imagePreviewUrl} target="_blank" rel="noopener noreferrer" className="underline break-words">
+                {imagePreviewUrl}
+              </a>
+              <img src={imagePreviewUrl} alt="プレビュー" className="mx-auto max-h-40 rounded shadow" />
+            </div>
+          )}
+
         </div>
+
       </main>
     </div>
   );

@@ -12,14 +12,19 @@
     "@prisma/client": "^6.5.0",
     "@radix-ui/react-slot": "^1.1.2",
     "@supabase/supabase-js": "^2.49.4",
+    "@types/formidable": "^3.4.5",
+    "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "formidable": "^3.5.2",
     "lucide-react": "^0.484.0",
+    "mysql2": "^3.14.0",
     "next": "15.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.0.2",
-    "tailwind-variants": "^1.0.0"
+    "tailwind-variants": "^1.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

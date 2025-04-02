@@ -65,6 +65,7 @@ export async function POST(req: Request) {
         Email: data.email || '',
         Address: data.address || '',
         Notes: data.memo || '',
+        ImageURL: data.imageUrl || '', 
       }
     });
 

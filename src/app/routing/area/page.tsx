@@ -32,14 +32,14 @@ export default function CategoryListPage() {
     <div className="p-4 bg-green-100 min-h-screen">
       <header className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-purple-700">IT就労 ビズウェル</h1>
-        <nav className="space-x-4 text-pink-600">
-        <Link href="/">ホーム</Link>
-          <Link href="/routing/tanto">担当者一覧</Link>
-          <Link href="/routing/kankei">関係機関一覧</Link>
-          <Link href="/routing/kubun">区分一覧</Link>
-          <Link href="/routing/area">エリア一覧</Link>
-          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
-        <Link href="/routing/shinkitouroku">新規登録</Link>
+        <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
+          <a href="/">ホーム</a>
+          <a href="/routing/tanto">担当者一覧</a>
+          <a href="/routing/kankei">関係機関一覧</a>
+          <a href="/routing/kubun">区分一覧</a>
+          <a href="/routing/area">エリア一覧</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</a>
+          <a href="/routing/shinkitouroku">新規登録</a>
         </nav>
       </header>
 
