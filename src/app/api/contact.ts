@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from '@/lib/supabaseClient';
+import { prisma } from '@/lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).end();
@@ -19,26 +19,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } = req.body;
 
   try {
-    const { data, error } = await supabase
-      .from('contacts')
-      .insert([
-        {
-          CategoryID: parseInt(kubun) || null,
-          OrganizationID: parseInt(kankei) || null,
-          RepresentativeID: parseInt(tanto) || null,
-          Phone: tel || null,
-          Mobile: mobile || null,
-          Fax: fax || null,
-          Email: email || null,
-          RegionID: parseInt(area) || null,
-          Address: address || null,
-          Notes: memo || null,
-          ImageURL: imageUrl || null,
-          CreatedAt: new Date().toISOString()
-        }
-      ]);
-
-    if (error) throw error;
+    const data = await prisma.businessCard.create({
+      data: {
+        CategoryID: kubun ? parseInt(kubun) : null,
+        OrganizationID: kankei ? parseInt(kankei) : null,
+        RepresentativeID: tanto ? parseInt(tanto) : null,
+        Phone: tel || null,
+        Mobile: mobile || null,
+        Fax: fax || null,
+        Email: email || null,
+        RegionID: area ? parseInt(area) : null,
+        Address: address || null,
+        Notes: memo || null,
+        ImageURL: imageUrl || null,
+      }
+    });
 
     res.status(200).json({ message: '登録成功', data });
   } catch (error) {
