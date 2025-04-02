@@ -1,9 +1,9 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabaseClient';
 
 interface FormData {
   kubun: string;
@@ -29,83 +29,85 @@ export default function RoutingFormPage() {
     email: '',
     area: '',
     address: '',
-    memo: ''
+    memo: '',
   });
 
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-
-  // 入力値変更
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // 画像変更
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      setImagePreviewUrl(URL.createObjectURL(file)); // プレビュー用URL生成
-    }
-  };
-
-  // フォーム送信
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    let imageUrl = '';
-
-    if (imageFile) {
-      const formDataImage = new FormData();
-      formDataImage.append('file', imageFile);
-
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formDataImage,
-      });
-
-      if (uploadRes.ok) {
-        const data = await uploadRes.json();
-        imageUrl = data.imageUrl; // アップロード後の画像URL
-      } else {
-        alert('画像アップロードに失敗しました');
-        return;
-      }
-    }
-
-    const res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...formData, imageUrl }),
-    });
-
-    if (res.ok) {
-      alert('登録に成功しました');
-      setFormData({
-        kubun: '',
-        kankei: '',
-        tanto: '',
-        tel: '',
-        mobile: '',
-        fax: '',
-        email: '',
-        area: '',
-        address: '',
-        memo: ''
-      });
-      setImageFile(null);
-      setImagePreviewUrl(null);
-    } else {
-      const data = await res.json();
-      alert('登録に失敗しました');
-    }
-  };
-
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { logout } = useLogout();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('images')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) {
+          throw uploadError;
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('images')
+          .getPublicUrl(filePath);
+
+        const { error: insertError } = await supabase
+          .from('contacts')
+          .insert([
+            {
+              ...formData,
+              ImageURL: publicUrl,
+            },
+          ]);
+
+        if (insertError) {
+          throw insertError;
+        }
+
+        alert('登録が完了しました');
+        setFormData({
+          kubun: '',
+          kankei: '',
+          tanto: '',
+          tel: '',
+          mobile: '',
+          fax: '',
+          email: '',
+          area: '',
+          address: '',
+          memo: '',
+        });
+        setSelectedFile(null);
+        setPreviewUrl(null);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'エラーが発生しました');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-green-100 p-6 sm:p-12 font-sans">
@@ -166,7 +168,10 @@ export default function RoutingFormPage() {
                   type="text"
                   name={name}
                   value={formData[name as keyof FormData]}
-                  onChange={handleInputChange}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    [name]: e.target.value
+                  }))}
                   className="bg-white text-black p-2 rounded"
                   required={required}
                 />
@@ -187,7 +192,7 @@ export default function RoutingFormPage() {
             <input
               type="file"
               accept="image/*"
-              onChange={handleImageChange}
+              onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer"
               title=""
             />
@@ -195,13 +200,13 @@ export default function RoutingFormPage() {
           </div>
 
           {/* 選択された画像のURL表示とプレビュー */}
-          {imagePreviewUrl && (
+          {previewUrl && (
             <div className="text-center text-sm text-purple-900 break-all space-y-2">
               <p>選択中の画像:</p>
-              <a href={imagePreviewUrl} target="_blank" rel="noopener noreferrer" className="underline break-words">
-                {imagePreviewUrl}
+              <a href={previewUrl} target="_blank" rel="noopener noreferrer" className="underline break-words">
+                {previewUrl}
               </a>
-              <img src={imagePreviewUrl} alt="プレビュー" className="mx-auto max-h-40 rounded shadow" />
+              <img src={previewUrl} alt="プレビュー" className="mx-auto max-h-40 rounded shadow" />
             </div>
           )}
 

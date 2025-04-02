@@ -5,10 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
 
-import { twMerge } from "tailwind-merge";
-
-import { clsx } from "clsx";
-
 export default function AreaListPage() {
   const data = [
     {
