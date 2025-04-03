@@ -52,37 +52,45 @@ export default function RoutingFormPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
-  
+
     try {
       // ① 必須チェック
       const requiredFields = ['category', 'organization', 'representative', 'phone', 'email', 'region'];
-      const missingFields = requiredFields.filter(key => !formData[key as keyof FormData]);
+      const missingFields = requiredFields.filter(key => !formData[key as keyof FormData]?.trim());
       if (missingFields.length > 0) {
-        alert('必須項目が未入力です');
+        alert('必須項目が未入力、または空白のみです');
         setIsSubmitting(false);
         return;
       }
-  
-      // ② organizationid を取得
+
+      // ② organization取得
+      const organizationName = formData.organization.trim();
       const { data: organizationData, error: organizationError } = await supabase
         .from('organization')
         .select('organizationid')
-        .eq('organizationname', formData.organization)
+        .eq('organizationname', organizationName)
         .maybeSingle();
-  
-      if (organizationError || !organizationData) {
-        throw new Error('入力された関係機関が存在しません');
-      }
-  
-      // ③ 他の外部キーも同様に取得する（例: category, region, representative）
-      const { data: categoryData } = await supabase.from('category').select('categoryid').eq('categoryname', formData.category).maybeSingle();
-      const { data: regionData } = await supabase.from('region').select('regionid').eq('regionname', formData.region).maybeSingle();
-      const { data: representativeData } = await supabase.from('representative').select('representativeid').eq('representativename', formData.representative).maybeSingle();
-  
-      if (!categoryData || !regionData || !representativeData) {
-        throw new Error('区分、エリア、担当者のいずれかが存在しません');
-      }
-  
+      if (organizationError) console.warn('organization取得エラー (無視します)', organizationError);
+      const organizationId = organizationData?.organizationid ?? null;
+
+      // ③ 他の外部キー取得 (エラー無視 & 無ければ null)
+      const categoryName = formData.category.trim();
+      const regionName = formData.region.trim();
+      const representativeName = formData.representative.trim();
+
+      const { data: categoryData, error: categoryError } = await supabase.from('category').select('categoryid').eq('categoryname', categoryName).maybeSingle();
+      if (categoryError) console.warn('category取得エラー (無視します)', categoryError);
+
+      const { data: regionData, error: regionError } = await supabase.from('region').select('regionid').eq('regionname', regionName).maybeSingle();
+      if (regionError) console.warn('region取得エラー (無視します)', regionError);
+
+      const { data: representativeData, error: representativeError } = await supabase.from('representative').select('representativeid').eq('representativename', representativeName).maybeSingle();
+      if (representativeError) console.warn('representative取得エラー (無視します)', representativeError);
+
+      const categoryId = categoryData?.categoryid ?? null;
+      const regionId = regionData?.regionid ?? null;
+      const representativeId = representativeData?.representativeid ?? null;
+
       // ④ 画像アップロード処理
       let public_url: string | null = null;
       if (selectedFile) {
@@ -91,29 +99,29 @@ export default function RoutingFormPage() {
         const filePath = `uploads/${fileName}`;
         const { error: uploadError } = await supabase.storage.from('images').upload(filePath, selectedFile);
         if (uploadError) throw new Error(uploadError.message);
-  
+
         const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(filePath);
         if (!publicUrlData?.publicUrl) throw new Error('画像URL取得失敗');
         public_url = publicUrlData.publicUrl;
       }
-  
+
       // ⑤ businesscard 登録
       const { error: insertError } = await supabase.from('businesscard').insert([{
-        categoryid: categoryData.categoryid,
-        organizationid: organizationData.organizationid,
-        representativeid: representativeData.representativeid,
-        regionid: regionData.regionid,
-        phone: formData.phone,
-        mobile: formData.mobile,
-        fax: formData.fax,
-        email: formData.email,
-        address: formData.address,
-        notes: formData.notes,
+        categoryid: categoryId,
+        organizationid: organizationId,
+        representativeid: representativeId,
+        regionid: regionId,
+        phone: formData.phone.trim(),
+        mobile: formData.mobile.trim(),
+        fax: formData.fax.trim(),
+        email: formData.email.trim(),
+        address: formData.address.trim(),
+        notes: formData.notes.trim(),
         imageurl: public_url,
       }]);
-  
+
       if (insertError) throw new Error(insertError.message);
-  
+
       alert('登録が完了しました');
       setFormData({
         category: '',
@@ -129,15 +137,15 @@ export default function RoutingFormPage() {
       });
       setSelectedFile(null);
       setPreviewUrl(null);
-  
+
     } catch (err: any) {
       console.error('登録エラー', err);
       alert(err.message || 'エラーが発生しました');
     } finally {
       setIsSubmitting(false);
     }
-  }
-  
+}
+
   return (
     <div className="min-h-screen bg-green-100 p-6 sm:p-12 font-sans">
       <header className="w-full flex flex-col sm:flex-row justify-between items-center max-w-6xl mx-auto mb-8">
