@@ -4,70 +4,103 @@ import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
 
+// -----------------
+// Supabase 初期化
+// -----------------
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// -----------------
+// 型定義
+// -----------------
 interface Contact {
-  BusinessCardID: number;
-  Representative?: { RepresentativeName?: string | null } | null;
-  Region?: { RegionName?: string | null } | null;
-  Organization?: { OrganizationName?: string | null } | null;
-  Category?: { CategoryName?: string | null } | null;
-  Phone?: string | null;
-  Mobile?: string | null;
-  Email?: string | null;
-  ImageURL?: string | null; // 画像のURLを追加
+  businesscardid: number;
+  phone?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  imageurl?: string | null;
+  representativeid?: { representativename: string } | null;
+  regionid?: { regionname: string } | null;
+  organizationid?: { organizationname: string } | null;
+  categoryid?: { categoryname: string } | null;
 }
 
 export default function CategoryListPage() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const { logout } = useLogout();
 
+  // ---------------------
+  // データ取得
+  // ---------------------
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('/api/contact');
-        if (!res.ok) throw new Error("API Error");
-        const data = await res.json();
-        console.log(contacts)
+        const { data, error } = await supabase
+          .from('businesscard')
+          .select(`
+            businesscardid,
+            phone,
+            mobile,
+            email,
+            imageurl,
+            representativeid(representativename),
+            regionid(regionname),
+            organizationid(organizationname),
+            categoryid(categoryname)
+          `);
+
+        if (error) throw error;
+        if (!data) throw new Error('データが取得できませんでした');
+
         setContacts(data);
       } catch (err) {
         console.error("データ取得エラー", err);
         alert('データの取得に失敗しました');
       }
-    })();
+    };
+
+    fetchData();
   }, []);
 
-  // ★ ポップアップ関数
-  const openImagePopup = (imageUrl: string | null | undefined) => {
-    if (!imageUrl) {
-      alert(`画像が登録されていません\nimageUrl: ${imageUrl}`);
+  // ---------------------
+  // ポップアップ
+  // ---------------------
+  const openImagePopup = async (imageurl: string | null | undefined) => {
+    if (!imageurl) {
+      alert('画像が登録されていません');
       return;
     }
 
-    const fixedUrl = imageUrl.startsWith('http') || imageUrl.startsWith('/uploads/')
-  ? imageUrl
-  : `/uploads/${imageUrl}`;
+    const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
+    if (!imageurl.startsWith(publicUrlPrefix)) {
+      alert('imageurlの形式が不正です');
+      return;
+    }
 
-    console.log("URL:" + fixedUrl);
+    const path = imageurl.replace(publicUrlPrefix, "");
+    const { data, error } = await supabase.storage.from('images').createSignedUrl(path, 60 * 60);
+    if (error || !data?.signedUrl) {
+      alert('署名付きURLの取得に失敗しました');
+      return;
+    }
 
-    const popup = window.open(
-      '',
-      '_blank',
-      'width=600,height=800,scrollbars=yes,resizable=yes'
-    );
+    const popup = window.open('', '_blank', 'width=600,height=800,scrollbars=yes,resizable=yes');
     if (popup) {
       popup.document.write(`
         <html>
-          <head>
-            <title>名刺画像</title>
-          </head>
+          <head><title>名刺画像</title></head>
           <body style="margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;">
-            <img src="${fixedUrl}" alt="名刺画像" style="max-width:100%;max-height:100%;" />
+            <img src="${data.signedUrl}" alt="名刺画像" style="max-width:100%;max-height:100%;" />
           </body>
         </html>
       `);
       popup.document.close();
     }
-};
+  };
 
   return (
     <div className="p-4 bg-green-100 min-h-screen">
@@ -81,17 +114,10 @@ export default function CategoryListPage() {
           <Link href="/routing/kankei">関係機関一覧</Link>
           <Link href="/routing/kubun">区分一覧</Link>
           <Link href="/routing/area">エリア一覧</Link>
-          <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
+          <Link href="#" onClick={(e) => { e.preventDefault(); logout(); }}>ログアウト</Link>
           <Link href="/routing/shinkitouroku">新規登録</Link>
         </nav>
       </header>
-
-      {/* 新規登録 */}
-      <div className="flex items-center justify-between mb-4">
-        <Button className="bg-yellow-300 text-black">新規登録</Button>
-        <Button className="bg-purple-400 text-white">担当者一覧（全体）</Button>
-        <input type="text" placeholder="検索" className="ml-4 px-2 py-1 border rounded" />
-      </div>
 
       {/* テーブル */}
       <div className="overflow-x-auto">
@@ -99,9 +125,9 @@ export default function CategoryListPage() {
           <thead className="bg-blue-200">
             <tr>
               <th>担当者名</th>
-              <th>エリア</th>
+              <th>エリア名</th>
               <th>関係機関名</th>
-              <th>区分</th>
+              <th>区分名</th>
               <th>TEL</th>
               <th>携帯</th>
               <th>メール</th>
@@ -111,26 +137,24 @@ export default function CategoryListPage() {
           </thead>
           <tbody>
             {contacts.map((item) => (
-              <tr key={item.BusinessCardID} className="text-center border-t">
-                <td>{item.Representative?.RepresentativeName || ''}</td>
-                <td>{item.Region?.RegionName || ''}</td>
-                <td>{item.Organization?.OrganizationName || ''}</td>
-                <td>{item.Category?.CategoryName || ''}</td>
-                <td>{item.Phone || ''}</td>
-                <td>{item.Mobile || ''}</td>
-                <td>{item.Email || ''}</td>
+              <tr key={item.businesscardid} className="text-center border-t">
+                <td>{item.representativeid?.representativename ?? "-"}</td>
+                <td>{item.regionid?.regionname ?? "-"}</td>
+                <td>{item.organizationid?.organizationname ?? "-"}</td>
+                <td>{item.categoryid?.categoryname ?? "-"}</td>
+                <td>{item.phone ?? "-"}</td>
+                <td>{item.mobile ?? "-"}</td>
+                <td>{item.email ?? "-"}</td>
                 <td>
                   <Button
                     className="bg-blue-500 text-white"
-                    onClick={() => openImagePopup(item.ImageURL)}
+                    onClick={() => openImagePopup(item.imageurl)}
                   >
                     確認・編集
                   </Button>
                 </td>
                 <td>
-                  <Button className="bg-red-500 text-white">
-                    削除
-                  </Button>
+                  <Button className="bg-red-500 text-white">削除</Button>
                 </td>
               </tr>
             ))}

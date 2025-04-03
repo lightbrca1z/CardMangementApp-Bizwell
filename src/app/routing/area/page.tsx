@@ -1,25 +1,48 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLogout } from '@/lib/logout';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+
+// --------------------
+// Supabase 初期化
+// --------------------
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function AreaListPage() {
-  const data = [
-    {
-      category: "行政機関",
-      area: "新宿区",
-      organization: "新宿区役所",
-      name: "青山 ◯◯（仮）",
-      tel: "00-0000-0000",
-      mobile: "00-0000-0000",
-      email: "JJJJJJJ@gmail.com",
-    },
-  ];
-
+  const [data, setData] = useState<any[]>([]);
   const { logout } = useLogout();
-  
+
+  // --------------------
+  // 初回データ取得
+  // --------------------
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from('businessCard')
+        .select(`
+          *,
+          Category(*),
+          Region(*),
+          Organization(*),
+          Representative(*)
+        `);
+
+      if (error) {
+        console.error('取得エラー', error);
+        return;
+      }
+
+      setData(data || []);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="p-4 bg-green-100 min-h-screen">
@@ -75,13 +98,13 @@ export default function AreaListPage() {
           <tbody>
             {data.map((item, index) => (
               <tr key={index} className="text-center border-t">
-                <td>{item.category}</td>
-                <td>{item.area}</td>
-                <td>{item.organization}</td>
-                <td>{item.name}</td>
-                <td>{item.tel}</td>
-                <td>{item.mobile}</td>
-                <td>{item.email}</td>
+                <td>{item.Category?.CategoryName || ''}</td>
+                <td>{item.Region?.RegionName || ''}</td>
+                <td>{item.Organization?.OrganizationName || ''}</td>
+                <td>{item.Representative?.RepresentativeName || ''}</td>
+                <td>{item.Phone || ''}</td>
+                <td>{item.Mobile || ''}</td>
+                <td>{item.Email || ''}</td>
                 <td>
                   <Button className="bg-blue-500 text-white">確認・編集</Button>
                 </td>
@@ -90,7 +113,7 @@ export default function AreaListPage() {
                 </td>
               </tr>
             ))}
-            {[...Array(4)].map((_, idx) => (
+            {data.length === 0 && [...Array(4)].map((_, idx) => (
               <tr key={`empty-${idx}`} className="text-center border-t h-12">
                 <td colSpan={9}></td>
               </tr>

@@ -1,25 +1,62 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useLogout } from "@/lib/logout";
+import { createClient } from '@supabase/supabase-js';
+
+// --------------------
+// Supabase初期化
+// --------------------
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// --------------------
+// 型定義
+// --------------------
+interface BusinessCard {
+  id: number;
+  Category?: { CategoryName: string };
+  Region?: { RegionName: string };
+  Organization?: { OrganizationName: string };
+  Representative?: { RepresentativeName: string };
+  Phone: string;
+  Mobile: string;
+  Email: string;
+}
 
 export default function CategoryListPage() {
   const { logout } = useLogout();
+  const [data, setData] = useState<BusinessCard[]>([]);
 
-  // 仮データ（将来的にAPI取得に置き換え）
-  const data = [
-    {
-      category: "行政機関",
-      area: "新宿区",
-      organization: "新宿区役所",
-      name: "青山 ◯◯（仮）",
-      tel: "00-0000-0000",
-      mobile: "00-0000-0000",
-      email: "JJJJJJJ@gmail.com",
-    },
-  ];
+  // --------------------
+  // データ取得
+  // --------------------
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from('businessCard')
+        .select(`
+          *,
+          Category(CategoryName),
+          Region(RegionName),
+          Organization(OrganizationName),
+          Representative(RepresentativeName)
+        `);
+
+      if (error) {
+        console.error('取得エラー', error);
+        alert('データの取得に失敗しました');
+        return;
+      }
+      setData(data || []);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="p-4 bg-green-100 min-h-screen">
@@ -79,15 +116,15 @@ export default function CategoryListPage() {
             </tr>
           </thead>
           <tbody>
-            {data.map((item, index) => (
-              <tr key={index} className="text-center border-t">
-                <td>{item.category}</td>
-                <td>{item.area}</td>
-                <td>{item.organization}</td>
-                <td>{item.name}</td>
-                <td>{item.tel}</td>
-                <td>{item.mobile}</td>
-                <td>{item.email}</td>
+            {data.map((item) => (
+              <tr key={item.id} className="text-center border-t">
+                <td>{item.Category?.CategoryName || '-'}</td>
+                <td>{item.Region?.RegionName || '-'}</td>
+                <td>{item.Organization?.OrganizationName || '-'}</td>
+                <td>{item.Representative?.RepresentativeName || '-'}</td>
+                <td>{item.Phone || '-'}</td>
+                <td>{item.Mobile || '-'}</td>
+                <td>{item.Email || '-'}</td>
                 <td>
                   <Button type="button" className="bg-blue-500 text-white">確認・編集</Button>
                 </td>
@@ -96,7 +133,7 @@ export default function CategoryListPage() {
                 </td>
               </tr>
             ))}
-            {[...Array(4)].map((_, idx) => (
+            {data.length === 0 && [...Array(4)].map((_, idx) => (
               <tr key={`empty-${idx}`} className="text-center border-t h-12">
                 <td colSpan={9}></td>
               </tr>
