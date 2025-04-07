@@ -23,10 +23,10 @@ interface Contact {
   mobile?: string | null;
   email?: string | null;
   imageurl?: string | null;
-  representativeid?: { representativename: string } | null;
-  regionid?: { regionname: string } | null;
-  organizationid?: { organizationname: string } | null;
-  categoryid?: { categoryname: string } | null;
+  representative?: { representativename: string } | null;
+  region?: { regionname: string } | null;
+  organization?: { organizationname: string } | null;
+  category?: { categoryname: string } | null;
 }
 
 export default function CategoryListPage() {
@@ -40,18 +40,19 @@ export default function CategoryListPage() {
     const fetchData = async () => {
       try {
         const { data, error } = await supabase
-          .from('businesscard')
-          .select(`
-            businesscardid,
-            phone,
-            mobile,
-            email,
-            imageurl,
-            representativeid(representativename),
-            regionid(regionname),
-            organizationid(organizationname),
-            categoryid(categoryname)
-          `);
+        .from('businesscard')
+        .select(`
+          businesscardid,
+          phone,
+          mobile,
+          email,
+          imageurl,
+          representative:representativeid ( representativename ),
+          region:regionid ( regionname ),
+          organization:organizationid ( organizationname ),
+          category:categoryid ( categoryname )
+        `);
+          
 
         if (error) throw error;
         if (!data) throw new Error('データが取得できませんでした');
@@ -138,10 +139,11 @@ export default function CategoryListPage() {
           <tbody>
             {contacts.map((item) => (
               <tr key={item.businesscardid} className="text-center border-t">
-                <td>{item.representativeid?.representativename ?? "-"}</td>
-                <td>{item.regionid?.regionname ?? "-"}</td>
-                <td>{item.organizationid?.organizationname ?? "-"}</td>
-                <td>{item.categoryid?.categoryname ?? "-"}</td>
+                <td>{item.representative?.representativename ?? "-"}</td>
+                <td>{item.region?.regionname ?? "-"}</td>
+                <td>{item.organization?.organizationname ?? "-"}</td>
+                <td>{item.category?.categoryname ?? "-"}</td>
+
                 <td>{item.phone ?? "-"}</td>
                 <td>{item.mobile ?? "-"}</td>
                 <td>{item.email ?? "-"}</td>

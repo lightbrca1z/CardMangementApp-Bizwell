@@ -6,14 +6,14 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 
 interface FormData {
-  category: string;
-  organization: string;
-  representative: string;
+  category: string;        // ID
+  organization: string;    // ID
+  representative: string;  // ID
   phone: string;
   mobile: string;
   fax: string;
   email: string;
-  region: string;
+  region: string;          // ID
   address: string;
   notes: string;
 }
@@ -37,6 +37,28 @@ export default function RoutingFormPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { logout } = useLogout();
 
+  // ▼ マスター取得
+  const [categories, setCategories] = useState<any[]>([]);
+  const [organizations, setOrganizations] = useState<any[]>([]);
+  const [representatives, setRepresentatives] = useState<any[]>([]);
+  const [regions, setRegions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchMasters = async () => {
+      const [cat, org, rep, reg] = await Promise.all([
+        supabase.from('category').select('*'),
+        supabase.from('organization').select('*'),
+        supabase.from('representative').select('*'),
+        supabase.from('region').select('*'),
+      ]);
+      if (cat.data) setCategories(cat.data);
+      if (org.data) setOrganizations(org.data);
+      if (rep.data) setRepresentatives(rep.data);
+      if (reg.data) setRegions(reg.data);
+    };
+    fetchMasters();
+  }, []);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setSelectedFile(file);
@@ -55,41 +77,47 @@ export default function RoutingFormPage() {
 
     try {
       // ① 必須チェック
-      const requiredFields = ['category', 'organization', 'representative', 'phone', 'email', 'region'];
-      const missingFields = requiredFields.filter(key => !formData[key as keyof FormData]?.trim());
+      const requiredFields = ['category', 'organization', 'representative', 'region'];
+      const missingFields = requiredFields.filter(key => !formData[key as keyof FormData]);
       if (missingFields.length > 0) {
-        alert('必須項目が未入力、または空白のみです');
+        alert('必須項目が未選択です');
         setIsSubmitting(false);
         return;
       }
 
-      // ② organization取得
-      const organizationName = formData.organization.trim();
-      const { data: organizationData, error: organizationError } = await supabase
-        .from('organization')
-        .select('organizationid')
-        .eq('organizationname', organizationName)
-        .maybeSingle();
-      if (organizationError) console.warn('organization取得エラー (無視します)', organizationError);
-      const organizationId = organizationData?.organizationid ?? null;
+      // ② マスターの登録処理
+      const upsertMaster = async (table: string, nameField: string, value: string) => {
+        // まず既存のレコードを検索
+        const { data: existingData, error: searchError } = await supabase
+          .from(table)
+          .select('*')
+          .eq(nameField, value)
+          .single();
 
-      // ③ 他の外部キー取得 (エラー無視 & 無ければ null)
-      const categoryName = formData.category.trim();
-      const regionName = formData.region.trim();
-      const representativeName = formData.representative.trim();
+        if (searchError && searchError.code !== 'PGRST116') { // PGRST116はレコードが見つからないエラー
+          throw searchError;
+        }
 
-      const { data: categoryData, error: categoryError } = await supabase.from('category').select('categoryid').eq('categoryname', categoryName).maybeSingle();
-      if (categoryError) console.warn('category取得エラー (無視します)', categoryError);
+        if (existingData) {
+          return existingData[`${table}id`]; // 例: categoryid, organizationid など
+        }
 
-      const { data: regionData, error: regionError } = await supabase.from('region').select('regionid').eq('regionname', regionName).maybeSingle();
-      if (regionError) console.warn('region取得エラー (無視します)', regionError);
+        // 新規登録
+        const { data: newData, error: insertError } = await supabase
+          .from(table)
+          .insert([{ [nameField]: value }])
+          .select()
+          .single();
 
-      const { data: representativeData, error: representativeError } = await supabase.from('representative').select('representativeid').eq('representativename', representativeName).maybeSingle();
-      if (representativeError) console.warn('representative取得エラー (無視します)', representativeError);
+        if (insertError) throw insertError;
+        return newData[`${table}id`]; // 例: categoryid, organizationid など
+      };
 
-      const categoryId = categoryData?.categoryid ?? null;
-      const regionId = regionData?.regionid ?? null;
-      const representativeId = representativeData?.representativeid ?? null;
+      // ③ 各マスターのIDを取得
+      const categoryId = await upsertMaster('category', 'categoryname', formData.category);
+      const organizationId = await upsertMaster('organization', 'organizationname', formData.organization);
+      const representativeId = await upsertMaster('representative', 'representativename', formData.representative);
+      const regionId = await upsertMaster('region', 'regionname', formData.region);
 
       // ④ 画像アップロード処理
       let public_url: string | null = null;
@@ -144,7 +172,29 @@ export default function RoutingFormPage() {
     } finally {
       setIsSubmitting(false);
     }
-}
+  };
+
+  const renderSelectField = (
+    label: string,
+    field: keyof FormData,
+    options: any[],
+    optionLabelKey: string
+  ) => (
+    <div className="flex flex-col space-y-1 w-full">
+      <label className="text-sm">{label} <span className="text-red-500">※は必須項目です</span></label>
+      <select
+        className="bg-white text-black p-2 rounded border-2 border-purple-500 w-full"
+        value={formData[field]}
+        onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+        required
+      >
+        <option value="">選択してください</option>
+        {options.map((opt) => (
+          <option key={opt.id} value={opt.id}>{opt[optionLabelKey]}</option>
+        ))}
+      </select>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-green-100 p-6 sm:p-12 font-sans">
@@ -164,24 +214,10 @@ export default function RoutingFormPage() {
         <div className="bg-purple-900 text-white p-6 rounded-2xl w-full lg:w-2/3 shadow-lg">
           <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-2xl mb-4">入力フォーム</h2>
           <form onSubmit={handleSubmit} className="space-y-4 text-sm flex flex-col items-start w-full">
-            {[
-              { label: '区分入力', field: 'category' },
-              { label: '関係機関名', field: 'organization' },
-              { label: '担当者名', field: 'representative' },
-              { label: 'エリア', field: 'region' }
-            ].map(({ label, field }) => (
-              <div key={field} className="flex flex-col space-y-1 w-full">
-                <label className="text-sm">{label} <span className="text-red-500">※は必須項目です</span></label>
-                <input
-                  type="text"
-                  className="bg-white text-black p-2 rounded border-2 border-purple-500 w-full"
-                  placeholder={`${label}を入力`}
-                  value={formData[field as keyof FormData]}
-                  onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-                  required
-                />
-              </div>
-            ))}
+            {renderSelectField('区分入力', 'category', categories, 'categoryname')}
+            {renderSelectField('関係機関名', 'organization', organizations, 'organizationname')}
+            {renderSelectField('担当者名', 'representative', representatives, 'representativename')}
+            {renderSelectField('エリア', 'region', regions, 'regionname')}
 
             {[ 
               { label: 'TEL', field: 'phone', required: true },
@@ -199,7 +235,8 @@ export default function RoutingFormPage() {
                   placeholder={label}
                   required={required}
                   value={formData[field as keyof FormData]}
-                  onChange={(e) => setFormData({ ...formData, [field]: e.target.value })} />
+                  onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                />
               </div>
             ))}
 
