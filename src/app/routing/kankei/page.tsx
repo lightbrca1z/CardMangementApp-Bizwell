@@ -94,7 +94,7 @@ export default function BusinessCardListPage() {
       {/* 新規登録 */}
       <div className="flex items-center justify-between mb-4">
         <Button className="bg-yellow-300 text-black">新規登録</Button>
-        <Button className="bg-purple-400 text-white">担当者一覧（全体）</Button>
+        <Button className="bg-purple-400 text-white">関係機関一覧（全体）</Button>
         <input type="text" placeholder="検索" className="ml-4 px-2 py-1 border rounded" />
       </div>
 
