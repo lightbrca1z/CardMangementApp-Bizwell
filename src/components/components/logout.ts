@@ -1,6 +1,6 @@
-// lib/logout.ts
+// components/logout.ts
 
-import { supabase } from './supabaseClient'
+import { supabase } from '@/lib/supabaseClient'
 import { useRouter } from 'next/navigation'
 
 export const useLogout = () => {
@@ -9,8 +9,8 @@ export const useLogout = () => {
 
   const logout = async () => {
     await supabase.auth.signOut()
-    router.push('/routing/login')
+    router.push('/')
   }
 
   return { logout }
-}
+} 
