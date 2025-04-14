@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BusinessCard {
+  businesscardid Int      @id @default(autoincrement())
+  phone          String?
+  mobile         String?
+  email          String?
+  imageurl       String?
+  organization   Organization? @relation(fields: [organizationid], references: [organizationid])
+  organizationid Int?
+  region         Region? @relation(fields: [regionid], references: [regionid])
+  regionid       Int?
+  category       Category? @relation(fields: [categoryid], references: [categoryid])
+  categoryid     Int?
+  representative Representative? @relation(fields: [representativeid], references: [representativeid])
+  representativeid Int?
+}
+
+model Organization {
+  organizationid   Int           @id @default(autoincrement())
+  organizationname String
+  businesscards    BusinessCard[]
+}
+
+model Region {
+  regionid   Int           @id @default(autoincrement())
+  regionname String
+  businesscards BusinessCard[]
+}
+
+model Category {
+  categoryid   Int           @id @default(autoincrement())
+  categoryname String
+  businesscards BusinessCard[]
+}
+
+model Representative {
+  representativeid   Int           @id @default(autoincrement())
+  representativename String
+  businesscards      BusinessCard[]
+} 
