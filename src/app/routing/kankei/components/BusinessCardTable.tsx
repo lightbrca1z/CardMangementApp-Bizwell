@@ -6,18 +6,7 @@ import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { supabase } from '@/lib/supabaseClient';
 import BusinessCardEditModal from '@/components/BusinessCardEditModal';
-
-interface BusinessCard {
-  businesscardid: string;
-  phone?: string | null;
-  mobile?: string | null;
-  email?: string | null;
-  imageurl?: string | null;
-  organization: { organizationname: string } | null;
-  region: { regionname: string } | null;
-  category: { categoryname: string } | null;
-  representative: { representativename: string } | null;
-}
+import { BusinessCard } from '../types';
 
 interface BusinessCardTableProps {
   businessCards: BusinessCard[];

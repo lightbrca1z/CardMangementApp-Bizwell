@@ -3,27 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { createClient } from '@supabase/supabase-js';
 import BusinessCardTable from './BusinessCardTable';
-import ActionButtons from '@/components/ActionButtons';
+import ActionButtons from './ActionButtons';
 import Header from '@/components/Header';
 import SearchFieldSelect from '@/components/SearchFieldSelect';
 import SearchBarWithButton from '@/components/SearchBarWithButton';
+import { BusinessCard } from '../types';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-interface BusinessCard {
-  businesscardid: number;
-  phone?: string | null;
-  mobile?: string | null;
-  email?: string | null;
-  imageurl?: string | null;
-  organization: { organizationname: string } | null;
-  region: { regionname: string } | null;
-  category: { categoryname: string } | null;
-  representative: { representativename: string } | null;
-}
 
 const searchFields = [
   { value: 'category', label: '区分' },
