@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabaseClient';
 import BusinessCardEditModal from '@/components/BusinessCardEditModal';
 
 interface BusinessCard {
-  businesscardid: number;
+  businesscardid: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
@@ -34,7 +34,7 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('本当に削除しますか？')) {
       return;
     }
