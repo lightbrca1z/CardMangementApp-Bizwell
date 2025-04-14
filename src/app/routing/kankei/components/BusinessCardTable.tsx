@@ -1,15 +1,10 @@
 'use client';
 
-import React from "react";
-import { createClient } from '@supabase/supabase-js';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { openImagePopup } from "@/components/utils/imageUtils";
-import DeleteButton from "@/components/utils/DeleteButton";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { supabase } from '@/lib/supabaseClient';
 
 interface BusinessCard {
   businesscardid: number;
@@ -29,8 +24,30 @@ interface BusinessCardTableProps {
 }
 
 export default function BusinessCardTable({ businessCards, onDelete }: BusinessCardTableProps) {
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDelete = async (id: number) => {
+    if (!confirm('本当に削除しますか？')) {
+      return;
+    }
+
     try {
+      setIsDeleting(true);
+
+      // 関連する画像を削除
+      const { data: businessCard } = await supabase
+        .from('businesscard')
+        .select('imageurl')
+        .eq('businesscardid', id)
+        .single();
+
+      if (businessCard?.imageurl) {
+        const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
+        const path = businessCard.imageurl.replace(publicUrlPrefix, "");
+        await supabase.storage.from('images').remove([path]);
+      }
+
+      // 名刺データを削除
       const { error } = await supabase
         .from('businesscard')
         .delete()
@@ -40,9 +57,13 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
         throw error;
       }
 
+      alert('削除が完了しました');
       onDelete();
     } catch (error) {
       console.error('削除エラー:', error);
+      alert('削除に失敗しました');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -73,18 +94,34 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
               <td>{card.mobile || '-'}</td>
               <td>{card.email || '-'}</td>
               <td>
-                <Button
-                  className="bg-blue-500 text-white"
-                  onClick={() => openImagePopup(card.imageurl)}
-                >
-                  確認・編集
-                </Button>
+                <div className="flex justify-center gap-2">
+                  <Button
+                    className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-2 px-3 py-1"
+                    onClick={() => openImagePopup(card.imageurl)}
+                  >
+                    <FaEye />
+                    確認
+                  </Button>
+                  <Button
+                    className="bg-green-500 text-white hover:bg-green-600 flex items-center gap-2 px-3 py-1"
+                    onClick={() => openImagePopup(card.imageurl)}
+                  >
+                    <FaEdit />
+                    編集
+                  </Button>
+                </div>
               </td>
-              <td className="px-4 py-2">
-                <DeleteButton
-                  businesscardid={card.businesscardid}
-                  onDelete={() => handleDelete(card.businesscardid)}
-                />
+              <td className="px-2 py-1">
+                <div className="flex justify-center">
+                  <button
+                    onClick={() => handleDelete(card.businesscardid)}
+                    disabled={isDeleting}
+                    className="flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                  >
+                    <FaTrash className="mr-1" size={14} />
+                    {isDeleting ? '削除中...' : '削除'}
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

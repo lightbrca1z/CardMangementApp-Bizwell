@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { FaPlus, FaArrowLeft } from 'react-icons/fa';
 import MasterTable from './MasterTable';
 import ActionButtons from './ActionButtons';
 import { Button } from '@/components/ui/button';
@@ -95,7 +96,8 @@ export default function MasterList() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">マスターデータ管理</h1>
         <Link href="/routing/shinkitouroku">
-          <Button className="bg-black text-white hover:bg-gray-800">
+          <Button className="bg-black text-white hover:bg-gray-800 flex items-center gap-2">
+            <FaArrowLeft />
             新規登録画面へ
           </Button>
         </Link>
@@ -112,7 +114,11 @@ export default function MasterList() {
             placeholder="新しい名前を入力"
             className="flex-1 p-2 border rounded"
           />
-          <Button onClick={handleAdd} className="bg-green-500 text-white hover:bg-green-600">
+          <Button 
+            onClick={handleAdd} 
+            className="bg-green-500 text-white hover:bg-green-600 flex items-center gap-2"
+          >
+            <FaPlus />
             追加
           </Button>
         </div>

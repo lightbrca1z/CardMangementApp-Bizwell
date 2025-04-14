@@ -1,28 +1,35 @@
 'use client';
 
-import React, { useEffect, useState } from "react";
-import { createClient } from '@supabase/supabase-js';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabaseClient';
 import CategoryTable from './CategoryTable';
 import SearchFieldSelect from '@/components/SearchFieldSelect';
 import SearchBarWithButton from '@/components/SearchBarWithButton';
-import ActionButtons from './ActionButtons';
+import ActionButtons from '@/components/ActionButtons';
 import Header from '@/components/Header';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 interface Contact {
   businesscardid: number;
-  phone?: string | null;
-  mobile?: string | null;
-  email?: string | null;
+  category: {
+    categoryid: number;
+    categoryname: string;
+  } | null;
+  region: {
+    regionid: number;
+    regionname: string;
+  } | null;
+  organization: {
+    organizationid: number;
+    organizationname: string;
+  } | null;
+  representative: {
+    representativeid: number;
+    representativename: string;
+  } | null;
+  phone: string;
+  mobile: string;
+  email: string;
   imageurl?: string | null;
-  organization: { organizationname: string } | null;
-  region: { regionname: string } | null;
-  category: { categoryname: string } | null;
-  representative: { representativename: string } | null;
 }
 
 const searchFields = [
@@ -52,41 +59,63 @@ export default function CategoryList() {
         .from('businesscard')
         .select(`
           businesscardid,
+          categoryid,
+          regionid,
+          organizationid,
+          representativeid,
           phone,
           mobile,
           email,
           imageurl,
-          organization:organizationid!inner (
-            organizationname
-          ),
-          region:regionid!inner (
-            regionname
-          ),
-          category:categoryid!inner (
+          category:categoryid (
+            categoryid,
             categoryname
           ),
-          representative:representativeid!inner (
+          region:regionid (
+            regionid,
+            regionname
+          ),
+          organization:organizationid (
+            organizationid,
+            organizationname
+          ),
+          representative:representativeid (
+            representativeid,
             representativename
           )
-        `);
+        `)
+        .order('businesscardid', { ascending: true });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      if (data) {
-        const typedData = data.map(item => ({
-          ...item,
-          organization: item.organization || null,
-          region: item.region || null,
-          category: item.category || null,
-          representative: item.representative || null
-        })) as unknown as Contact[];
-        setContacts(typedData);
-        setFilteredContacts(typedData);
-      }
+      const typedData = (data || []).map(item => ({
+        businesscardid: item.businesscardid,
+        category: item.category ? {
+          categoryid: item.category.categoryid,
+          categoryname: item.category.categoryname
+        } : null,
+        region: item.region ? {
+          regionid: item.region.regionid,
+          regionname: item.region.regionname
+        } : null,
+        organization: item.organization ? {
+          organizationid: item.organization.organizationid,
+          organizationname: item.organization.organizationname
+        } : null,
+        representative: item.representative ? {
+          representativeid: item.representative.representativeid,
+          representativename: item.representative.representativename
+        } : null,
+        phone: item.phone || '',
+        mobile: item.mobile || '',
+        email: item.email || '',
+        imageurl: item.imageurl
+      }));
+
+      setContacts(typedData);
+      setFilteredContacts(typedData);
     } catch (error) {
-      console.error('データ取得エラー:', error);
+      console.error('Error fetching contacts:', error);
       setError('データの取得に失敗しました');
     }
   };
