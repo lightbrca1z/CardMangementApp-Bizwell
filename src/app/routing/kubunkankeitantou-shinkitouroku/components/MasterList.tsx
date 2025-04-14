@@ -57,14 +57,32 @@ export default function MasterList() {
       return;
     }
 
+    // 重複チェック
+    const isDuplicate = masterData.some(item => 
+      item.name.toLowerCase() === newName.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      setError('この名前は既に登録されています');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from(masterType)
         .insert([{ [`${masterType}name`]: newName.trim() }]);
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') { // PostgreSQLの一意制約違反エラーコード
+          setError('この名前は既に登録されています');
+          return;
+        }
+        console.error('登録エラー詳細:', error);
+        throw error;
+      }
 
       setNewName('');
+      setError(null);
       fetchMasterData();
     } catch (error) {
       console.error('登録エラー:', error);
