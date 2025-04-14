@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-interface BaseCard {
+export interface BaseCard {
   businesscardid?: string;
   phone?: string | null;
   mobile?: string | null;

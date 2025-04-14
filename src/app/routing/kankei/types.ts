@@ -1,9 +1,6 @@
-export interface BusinessCard {
-  businesscardid: string;
-  phone?: string | null;
-  mobile?: string | null;
-  email?: string | null;
-  imageurl?: string | null;
+import { BaseCard } from '@/components/BusinessCardEditModal';
+
+export interface BusinessCard extends BaseCard {
   organization: { organizationname: string } | null;
   region: { regionname: string } | null;
   category: { categoryname: string } | null;
