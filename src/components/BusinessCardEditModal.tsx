@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
 import { FaTimes, FaUpload, FaSave, FaTimesCircle } from 'react-icons/fa';
-import { openImagePopup } from '@/components/utils/imageUtils';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,7 +34,8 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(card.imageurl || null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setFormData({
@@ -43,7 +43,18 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
       mobile: card.mobile || '',
       email: card.email || '',
     });
-    setPreviewUrl(card.imageurl || null);
+    if (card.imageurl) {
+      const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
+      if (card.imageurl.startsWith(publicUrlPrefix)) {
+        const path = card.imageurl.replace(publicUrlPrefix, "");
+        supabase.storage.from('images').createSignedUrl(path, 60 * 60)
+          .then(({ data, error }) => {
+            if (!error && data?.signedUrl) {
+              setSignedUrl(data.signedUrl);
+            }
+          });
+      }
+    }
   }, [card]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,13 +226,12 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
               名刺画像
             </label>
             <div className="flex items-center space-x-4">
-              {previewUrl && (
+              {(previewUrl || signedUrl) && (
                 <div className="relative">
                   <img
-                    src={previewUrl}
+                    src={previewUrl || signedUrl || ''}
                     alt="名刺画像"
-                    className="w-32 h-32 object-cover rounded cursor-pointer"
-                    onClick={() => openImagePopup(previewUrl)}
+                    className="w-32 h-32 object-cover rounded"
                   />
                 </div>
               )}

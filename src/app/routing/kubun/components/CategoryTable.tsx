@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import BusinessCardEditModal from '@/components/BusinessCardEditModal';
-import { supabase } from '@/lib/supabaseClient';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface Contact {
   businesscardid: number;
@@ -50,34 +55,36 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = async (businesscardid: number) => {
-    if (!confirm('本当に削除しますか？')) return;
+  const handleDelete = async (id: number) => {
+    if (!confirm('本当に削除しますか？')) {
+      return;
+    }
 
-    setIsDeleting(true);
     try {
-      // 画像の削除
-      const { data: contact } = await supabase
+      setIsDeleting(true);
+
+      // 関連する画像を削除
+      const { data: businessCard } = await supabase
         .from('businesscard')
         .select('imageurl')
-        .eq('businesscardid', businesscardid)
+        .eq('businesscardid', id)
         .single();
 
-      if (contact?.imageurl) {
-        const imagePath = contact.imageurl.split('/').pop();
-        if (imagePath) {
-          await supabase.storage
-            .from('businesscard-images')
-            .remove([imagePath]);
-        }
+      if (businessCard?.imageurl) {
+        const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
+        const path = businessCard.imageurl.replace(publicUrlPrefix, "");
+        await supabase.storage.from('images').remove([path]);
       }
 
-      // データの削除
+      // 名刺データを削除
       const { error } = await supabase
         .from('businesscard')
         .delete()
-        .eq('businesscardid', businesscardid);
+        .eq('businesscardid', id);
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       alert('削除が完了しました');
       onDelete();
@@ -117,20 +124,20 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
               <td>{contact.email || '-'}</td>
               <td>
                 <div className="flex justify-center gap-2">
-                  <button
-                    onClick={() => openImagePopup(contact.imageurl)}
+                <Button
                     className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-2 px-3 py-1"
+                    onClick={() => openImagePopup(contact.imageurl)}
                   >
                     <FaEye />
                     確認
-                  </button>
-                  <button
-                    onClick={() => handleEdit(contact)}
+                  </Button>
+                  <Button
                     className="bg-green-500 text-white hover:bg-green-600 flex items-center gap-2 px-3 py-1"
+                    onClick={() => handleEdit(contact)}
                   >
                     <FaEdit />
                     編集
-                  </button>
+                  </Button>
                 </div>
               </td>
               <td className="px-2 py-1">
@@ -150,17 +157,13 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
         </tbody>
       </table>
 
-      {isEditModalOpen && selectedContact && (
+      {selectedContact && (
         <BusinessCardEditModal
           card={selectedContact}
           isOpen={isEditModalOpen}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedContact(null);
-          }}
+          onClose={() => setIsEditModalOpen(false)}
           onUpdate={() => {
             setIsEditModalOpen(false);
-            setSelectedContact(null);
             onDelete();
           }}
         />
