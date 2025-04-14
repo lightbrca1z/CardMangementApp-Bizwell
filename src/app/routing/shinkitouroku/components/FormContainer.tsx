@@ -1,8 +1,17 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+'use client';
+
+import React, { useState, useEffect } from "react";
+import { createClient } from '@supabase/supabase-js';
 import FormFields from './FormFields';
 import ImageUpload from './ImageUpload';
-import FormButtons from './FormButtons';
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Header from '@/components/Header';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface FormData {
   category: string;
@@ -15,6 +24,11 @@ interface FormData {
   region: string;
   address: string;
   notes: string;
+}
+
+interface MasterData {
+  id: string;
+  name: string;
 }
 
 export default function FormContainer() {
@@ -35,27 +49,39 @@ export default function FormContainer() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ▼ マスター取得
-  const [categories, setCategories] = useState<any[]>([]);
-  const [organizations, setOrganizations] = useState<any[]>([]);
-  const [representatives, setRepresentatives] = useState<any[]>([]);
-  const [regions, setRegions] = useState<any[]>([]);
+  const [categories, setCategories] = useState<MasterData[]>([]);
+  const [organizations, setOrganizations] = useState<MasterData[]>([]);
+  const [representatives, setRepresentatives] = useState<MasterData[]>([]);
+  const [regions, setRegions] = useState<MasterData[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchMasters = async () => {
-      const [cat, org, rep, reg] = await Promise.all([
+    fetchMasterData();
+  }, []);
+
+  const fetchMasterData = async () => {
+    try {
+      const [categoriesRes, organizationsRes, representativesRes, regionsRes] = await Promise.all([
         supabase.from('category').select('*'),
         supabase.from('organization').select('*'),
         supabase.from('representative').select('*'),
         supabase.from('region').select('*'),
       ]);
-      if (cat.data) setCategories(cat.data);
-      if (org.data) setOrganizations(org.data);
-      if (rep.data) setRepresentatives(rep.data);
-      if (reg.data) setRegions(reg.data);
-    };
-    fetchMasters();
-  }, []);
+
+      if (categoriesRes.error) throw categoriesRes.error;
+      if (organizationsRes.error) throw organizationsRes.error;
+      if (representativesRes.error) throw representativesRes.error;
+      if (regionsRes.error) throw regionsRes.error;
+
+      setCategories(categoriesRes.data?.map(item => ({ id: String(item.categoryid), name: item.categoryname })) || []);
+      setOrganizations(organizationsRes.data?.map(item => ({ id: String(item.organizationid), name: item.organizationname })) || []);
+      setRepresentatives(representativesRes.data?.map(item => ({ id: String(item.representativeid), name: item.representativename })) || []);
+      setRegions(regionsRes.data?.map(item => ({ id: String(item.regionid), name: item.regionname })) || []);
+    } catch (error) {
+      console.error('データ取得エラー:', error);
+      setError('データの取得に失敗しました');
+    }
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
@@ -196,7 +222,7 @@ export default function FormContainer() {
 
     } catch (err: any) {
       console.error('登録エラー', err);
-      alert(err.message || 'エラーが発生しました');
+      setError(err.message || 'エラーが発生しました');
     } finally {
       setIsSubmitting(false);
     }
@@ -205,8 +231,20 @@ export default function FormContainer() {
   return (
     <main className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
       <div className="bg-purple-900 text-white p-6 rounded-2xl w-full lg:w-2/3 shadow-lg">
-        <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-2xl mb-4">入力フォーム</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-2xl">入力フォーム</h2>
+          <Link href="/routing/kubunkankeitantou-shinkitouroku" className="inline-block">
+            <Button className="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg transition-colors duration-200">
+              区分・関係機関・担当者管理
+            </Button>
+          </Link>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-4 text-sm flex flex-col items-start w-full">
+          {error && (
+            <div className="w-full p-4 bg-red-100 text-red-700 rounded">
+              {error}
+            </div>
+          )}
           <FormFields
             formData={formData}
             setFormData={setFormData}
@@ -215,15 +253,38 @@ export default function FormContainer() {
             representatives={representatives}
             regions={regions}
           />
-          <FormButtons handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
+          <div className="w-full flex justify-end space-x-4">
+            <Button
+              type="submit"
+              className="bg-green-500 text-white hover:bg-green-600"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? '登録中...' : '登録'}
+            </Button>
+          </div>
         </form>
       </div>
 
-      <ImageUpload
-        selectedFile={selectedFile}
-        previewUrl={previewUrl}
-        handleFileChange={handleFileChange}
-      />
+      <div className="bg-purple-900 text-white p-6 rounded-2xl w-full lg:w-1/3 shadow-lg">
+        <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-2xl mb-4">画像アップロード</h2>
+        <div className="space-y-4">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full"
+          />
+          {previewUrl && (
+            <div className="mt-4">
+              <img
+                src={previewUrl}
+                alt="プレビュー"
+                className="max-w-full h-auto rounded"
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </main>
   );
 } 

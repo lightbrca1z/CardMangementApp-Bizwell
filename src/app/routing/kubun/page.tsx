@@ -5,9 +5,5 @@ import Header from '@/components/Header';
 import CategoryList from './components/CategoryList';
 
 export default function KubunPage() {
-  return (
-    <div>
-      <CategoryList />
-    </div>
-  );
+  return <CategoryList />;
 }

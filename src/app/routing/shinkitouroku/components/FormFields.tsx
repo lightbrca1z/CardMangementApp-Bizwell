@@ -1,10 +1,30 @@
+import React from 'react';
+
+interface FormData {
+  category: string;
+  organization: string;
+  representative: string;
+  phone: string;
+  mobile: string;
+  fax: string;
+  email: string;
+  region: string;
+  address: string;
+  notes: string;
+}
+
+interface MasterData {
+  id: string;
+  name: string;
+}
+
 interface FormFieldsProps {
-  formData: any;
-  setFormData: (data: any) => void;
-  categories: any[];
-  organizations: any[];
-  representatives: any[];
-  regions: any[];
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  categories: MasterData[];
+  organizations: MasterData[];
+  representatives: MasterData[];
+  regions: MasterData[];
 }
 
 export default function FormFields({
@@ -17,21 +37,22 @@ export default function FormFields({
 }: FormFieldsProps) {
   const renderSelectField = (
     label: string,
-    field: string,
-    options: any[],
-    optionLabelKey: string
+    field: keyof FormData,
+    options: MasterData[],
+    optionLabelKey: keyof MasterData
   ) => (
-    <div className="flex flex-col space-y-1 w-full">
-      <label className="text-sm">{label} <span className="text-red-500">※は必須項目です</span></label>
+    <div className="flex flex-col w-full">
+      <label className="text-sm font-medium mb-1">{label}</label>
       <select
-        className="bg-white text-black p-2 rounded border-2 border-purple-500 w-full"
         value={formData[field]}
         onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-        required
+        className="w-full p-2 rounded bg-purple-800 text-white border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
       >
         <option value="">選択してください</option>
         {options.map((opt) => (
-          <option key={opt.id} value={opt.id}>{opt[optionLabelKey]}</option>
+          <option key={`${field}-${opt.id}-${opt.name}`} value={opt.id}>
+            {opt[optionLabelKey]}
+          </option>
         ))}
       </select>
     </div>
@@ -39,28 +60,26 @@ export default function FormFields({
 
   return (
     <>
-      {renderSelectField('区分入力', 'category', categories, 'categoryname')}
-      {renderSelectField('関係機関名', 'organization', organizations, 'organizationname')}
-      {renderSelectField('担当者名', 'representative', representatives, 'representativename')}
-      {renderSelectField('エリア', 'region', regions, 'regionname')}
+      {renderSelectField('区分入力', 'category', categories, 'name')}
+      {renderSelectField('関係機関名', 'organization', organizations, 'name')}
+      {renderSelectField('担当者名', 'representative', representatives, 'name')}
+      {renderSelectField('エリア', 'region', regions, 'name')}
 
       {[
-        { label: 'TEL', field: 'phone', required: true },
-        { label: '携帯', field: 'mobile', required: false },
-        { label: 'FAX', field: 'fax', required: false },
-        { label: 'メール', field: 'email', required: true },
-        { label: '住所', field: 'address', required: false },
-        { label: '備考', field: 'notes', required: false },
-      ].map(({ label, field, required }) => (
-        <div key={field} className="flex flex-col space-y-1 w-full">
-          <label>{label}{required && <span className="text-red-500">※は必須項目です</span>}</label>
+        { label: '電話番号', field: 'phone' },
+        { label: '携帯番号', field: 'mobile' },
+        { label: 'FAX', field: 'fax' },
+        { label: 'メールアドレス', field: 'email' },
+        { label: '住所', field: 'address' },
+        { label: '備考', field: 'notes' },
+      ].map(({ label, field }) => (
+        <div key={field} className="flex flex-col w-full">
+          <label className="text-sm font-medium mb-1">{label}</label>
           <input
-            type={field === 'email' ? 'email' : 'text'}
-            className="bg-white text-black p-2 rounded border-2 border-purple-500 w-full"
-            placeholder={label}
-            required={required}
-            value={formData[field]}
+            type="text"
+            value={formData[field as keyof FormData]}
             onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+            className="w-full p-2 rounded bg-purple-800 text-white border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
       ))}

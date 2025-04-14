@@ -1,6 +1,7 @@
 'use client';
 
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -8,11 +9,14 @@ interface SearchBarProps {
 
 export default function SearchBar({ onSearch }: SearchBarProps) {
   return (
-    <input
-      type="text"
-      placeholder="検索"
-      className="ml-4 px-2 py-1 border rounded"
-      onChange={(e) => onSearch(e.target.value)}
-    />
+    <div>
+      <input
+        type="text"
+        placeholder="検索"
+        className="ml-4 px-2 py-1 border rounded"
+        onChange={(e) => onSearch(e.target.value)}
+      />
+      <Button className="bg-blue-500 text-white ml-2">検索</Button>
+    </div>
   );
 } 
