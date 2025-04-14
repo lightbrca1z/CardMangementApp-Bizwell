@@ -8,7 +8,7 @@ import BusinessCardEditModal from '@/components/BusinessCardEditModal';
 import { supabase } from '@/lib/supabaseClient';
 
 interface Area {
-  businesscardid: number;
+  businesscardid: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
@@ -34,7 +34,7 @@ export default function AreaTable({ areas, onDelete }: AreaTableProps) {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('本当に削除しますか？')) {
       return;
     }
