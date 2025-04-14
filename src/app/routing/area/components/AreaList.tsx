@@ -7,23 +7,12 @@ import SearchFieldSelect from '@/components/SearchFieldSelect';
 import SearchBarWithButton from '@/components/SearchBarWithButton';
 import ActionButtons from './ActionButtons';
 import Header from '@/components/Header';
+import { Area } from '../types';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
-
-interface Area {
-  businesscardid: number;
-  phone?: string | null;
-  mobile?: string | null;
-  email?: string | null;
-  imageurl?: string | null;
-  organization: { organizationname: string } | null;
-  region: { regionname: string } | null;
-  category: { categoryname: string } | null;
-  representative: { representativename: string } | null;
-}
 
 const searchFields = [
   { value: 'category', label: '区分' },

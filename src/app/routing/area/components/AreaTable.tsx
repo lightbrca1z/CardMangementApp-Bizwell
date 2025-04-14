@@ -6,18 +6,7 @@ import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import BusinessCardEditModal from '@/components/BusinessCardEditModal';
 import { supabase } from '@/lib/supabaseClient';
-
-interface Area {
-  businesscardid: string;
-  phone?: string | null;
-  mobile?: string | null;
-  email?: string | null;
-  imageurl?: string | null;
-  organization: { organizationname: string } | null;
-  region: { regionname: string } | null;
-  category: { categoryname: string } | null;
-  representative: { representativename: string } | null;
-}
+import { Area } from '../types';
 
 interface AreaTableProps {
   areas: Area[];
