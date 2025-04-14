@@ -13,27 +13,27 @@ const supabase = createClient(
 );
 
 interface Contact {
-  businesscardid: number;
-  category: {
-    categoryid: number;
-    categoryname: string;
-  } | null;
-  region: {
-    regionid: number;
-    regionname: string;
-  } | null;
+  businesscardid: string;
+  phone: string | null;
+  mobile: string | null;
+  email: string | null;
+  imageurl: string | null;
   organization: {
-    organizationid: number;
+    organizationid: string;
     organizationname: string;
   } | null;
+  region: {
+    regionid: string;
+    regionname: string;
+  } | null;
+  category: {
+    categoryid: string;
+    categoryname: string;
+  } | null;
   representative: {
-    representativeid: number;
+    representativeid: string;
     representativename: string;
   } | null;
-  phone: string;
-  mobile: string;
-  email: string;
-  imageurl?: string | null;
 }
 
 interface CategoryTableProps {
@@ -55,7 +55,7 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('本当に削除しますか？')) {
       return;
     }

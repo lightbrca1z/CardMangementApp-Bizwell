@@ -1,35 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import React, { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import CategoryTable from './CategoryTable';
-import SearchFieldSelect from '@/components/SearchFieldSelect';
 import SearchBarWithButton from '@/components/SearchBarWithButton';
 import ActionButtons from '@/components/ActionButtons';
 import Header from '@/components/Header';
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 interface Contact {
-  businesscardid: number;
-  category: {
-    categoryid: number;
-    categoryname: string;
-  } | null;
-  region: {
-    regionid: number;
-    regionname: string;
-  } | null;
+  businesscardid: string;
+  phone: string | null;
+  mobile: string | null;
+  email: string | null;
+  imageurl: string | null;
   organization: {
-    organizationid: number;
+    organizationid: string;
     organizationname: string;
   } | null;
+  region: {
+    regionid: string;
+    regionname: string;
+  } | null;
+  category: {
+    categoryid: string;
+    categoryname: string;
+  } | null;
   representative: {
-    representativeid: number;
+    representativeid: string;
     representativename: string;
   } | null;
-  phone: string;
-  mobile: string;
-  email: string;
-  imageurl?: string | null;
+}
+
+interface Category {
+  categoryid: number;
+  categoryname: string;
 }
 
 const searchFields = [
@@ -44,126 +53,100 @@ const searchFields = [
 
 export default function CategoryList() {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchField, setSearchField] = useState("all");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchField, setSearchField] = useState('organizationname');
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filteredContacts, setFilteredContacts] = useState<Contact[]>([]);
 
   useEffect(() => {
+    fetchCategories();
     fetchContacts();
   }, []);
 
-  const fetchContacts = async () => {
+  const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
+        .from('category')
+        .select('categoryid, categoryname')
+        .order('categoryname');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchContacts = async () => {
+    try {
+      setIsLoading(true);
+      let query = supabase
         .from('businesscard')
         .select(`
           businesscardid,
-          categoryid,
-          regionid,
-          organizationid,
-          representativeid,
           phone,
           mobile,
           email,
           imageurl,
-          category:categoryid (
-            categoryid,
-            categoryname
-          ),
-          region:regionid (
-            regionid,
-            regionname
-          ),
-          organization:organizationid (
-            organizationid,
-            organizationname
-          ),
-          representative:representativeid (
-            representativeid,
-            representativename
-          )
-        `)
-        .order('businesscardid', { ascending: true });
+          organization:organizationid (organizationid, organizationname),
+          region:regionid (regionid, regionname),
+          category:categoryid (categoryid, categoryname),
+          representative:representativeid (representativeid, representativename)
+        `);
+
+      if (selectedCategory) {
+        query = query.eq('categoryid', selectedCategory);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
-      const typedData = (data || []).map(item => ({
+      const transformedData = data?.map((item) => ({
         businesscardid: item.businesscardid,
-        category: item.category ? {
-          categoryid: item.category.categoryid,
-          categoryname: item.category.categoryname
-        } : null,
-        region: item.region ? {
-          regionid: item.region.regionid,
-          regionname: item.region.regionname
-        } : null,
-        organization: item.organization ? {
-          organizationid: item.organization.organizationid,
-          organizationname: item.organization.organizationname
-        } : null,
-        representative: item.representative ? {
-          representativeid: item.representative.representativeid,
-          representativename: item.representative.representativename
-        } : null,
-        phone: item.phone || '',
-        mobile: item.mobile || '',
-        email: item.email || '',
-        imageurl: item.imageurl
-      }));
+        phone: item.phone,
+        mobile: item.mobile,
+        email: item.email,
+        imageurl: item.imageurl,
+        organization: item.organization?.[0] || null,
+        region: item.region?.[0] || null,
+        category: item.category?.[0] || null,
+        representative: item.representative?.[0] || null
+      })) || [];
 
-      setContacts(typedData);
-      setFilteredContacts(typedData);
+      const filteredData = transformedData.filter((contact) => {
+        const fieldValue = contact[searchField as keyof typeof contact]?.toString().toLowerCase() || '';
+        return fieldValue.includes(searchQuery.toLowerCase());
+      });
+
+      setContacts(filteredData);
+      setFilteredContacts(filteredData);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       setError('データの取得に失敗しました');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleSearch = (query: string) => {
+  const handleSearchChange = (query: string) => {
     setSearchQuery(query);
   };
 
-  const handleFieldChange = (field: string) => {
-    setSearchField(field);
+  const handleSearchClick = () => {
+    fetchContacts();
   };
 
-  const handleSearchClick = () => {
-    const searchLower = searchQuery.toLowerCase();
-    const filtered = contacts.filter((contact) => {
-      if (searchField === "all") {
-        return (
-          (contact.representative?.representativename || '').toLowerCase().includes(searchLower) ||
-          (contact.region?.regionname || '').toLowerCase().includes(searchLower) ||
-          (contact.organization?.organizationname || '').toLowerCase().includes(searchLower) ||
-          (contact.category?.categoryname || '').toLowerCase().includes(searchLower) ||
-          (contact.phone || '').toLowerCase().includes(searchLower) ||
-          (contact.mobile || '').toLowerCase().includes(searchLower) ||
-          (contact.email || '').toLowerCase().includes(searchLower)
-        );
-      } else {
-        switch (searchField) {
-          case "category":
-            return (contact.category?.categoryname || '').toLowerCase().includes(searchLower);
-          case "region":
-            return (contact.region?.regionname || '').toLowerCase().includes(searchLower);
-          case "organization":
-            return (contact.organization?.organizationname || '').toLowerCase().includes(searchLower);
-          case "representative":
-            return (contact.representative?.representativename || '').toLowerCase().includes(searchLower);
-          case "phone":
-            return (contact.phone || '').toLowerCase().includes(searchLower);
-          case "mobile":
-            return (contact.mobile || '').toLowerCase().includes(searchLower);
-          case "email":
-            return (contact.email || '').toLowerCase().includes(searchLower);
-          default:
-            return true;
-        }
-      }
-    });
-    setFilteredContacts(filtered);
+  const handleCategoryChange = (categoryId: number | null) => {
+    setSelectedCategory(categoryId);
   };
+
+  useEffect(() => {
+    fetchContacts();
+  }, [selectedCategory, searchQuery, searchField]);
 
   const handleDelete = () => {
     fetchContacts();
@@ -175,14 +158,21 @@ export default function CategoryList() {
       <div className="flex items-center justify-between mb-4">
         <ActionButtons />
         <div className="flex items-center space-x-4">
-          <SearchFieldSelect 
-            value={searchField} 
-            onChange={handleFieldChange} 
-            fields={searchFields}
-          />
-          <SearchBarWithButton 
-            searchQuery={searchQuery} 
-            onSearchChange={handleSearch} 
+          <select
+            value={selectedCategory || ''}
+            onChange={(e) => handleCategoryChange(e.target.value ? Number(e.target.value) : null)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">すべての区分</option>
+            {categories.map((category) => (
+              <option key={category.categoryid} value={category.categoryid}>
+                {category.categoryname}
+              </option>
+            ))}
+          </select>
+          <SearchBarWithButton
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
             onSearchClick={handleSearchClick}
           />
         </div>

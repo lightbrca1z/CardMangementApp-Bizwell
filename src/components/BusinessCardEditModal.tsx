@@ -11,7 +11,7 @@ const supabase = createClient(
 );
 
 interface BaseCard {
-  businesscardid?: number;
+  businesscardid?: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
