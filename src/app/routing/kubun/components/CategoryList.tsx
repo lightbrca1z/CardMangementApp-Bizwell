@@ -51,6 +51,30 @@ const searchFields = [
   { value: 'email', label: 'メール' }
 ];
 
+const convertToBusinessCard = (org: any): Contact => ({
+  businesscardid: String(org.businesscardid || ''),
+  phone: org.phone || null,
+  mobile: org.mobile || null,
+  email: org.email || null,
+  imageurl: org.imageurl || null,
+  organization: org.organization ? { 
+    organizationid: String(org.organization.organizationid || ''),
+    organizationname: org.organization.organizationname || ''
+  } : null,
+  region: org.region ? { 
+    regionid: String(org.region.regionid || ''),
+    regionname: org.region.regionname || ''
+  } : null,
+  category: org.category ? { 
+    categoryid: String(org.category.categoryid || ''),
+    categoryname: org.category.categoryname || ''
+  } : null,
+  representative: org.representative ? { 
+    representativeid: String(org.representative.representativeid || ''),
+    representativename: org.representative.representativename || ''
+  } : null
+});
+
 export default function CategoryList() {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

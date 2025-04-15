@@ -26,7 +26,7 @@ interface OrganizationTableProps {
 // OrganizationをBusinessCardに変換する関数
 const convertToBusinessCard = (org: Organization): BusinessCard => {
   return {
-    businesscardid: org.businesscardid || 0,
+    businesscardid: String(org.businesscardid || 0),
     phone: org.phone || '',
     mobile: org.mobile || '',
     email: org.email || '',
@@ -107,9 +107,13 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
           card={convertToBusinessCard(selectedCard)}
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          onUpdate={handleUpdate}
+          onUpdate={() => {
+            setIsEditModalOpen(false);
+            onDelete(selectedCard.organizationid);
+          }}
         />
       )}
+
     </div>
   );
 } 
