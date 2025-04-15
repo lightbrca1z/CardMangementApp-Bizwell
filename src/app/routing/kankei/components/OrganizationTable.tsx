@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
-import BusinessCardEditModal from '@/components/BusinessCardEditModal';
+import BusinessCardEditModal, { BusinessCard } from '@/components/BusinessCardEditModal';
 
 interface Organization {
   organizationid: number;
@@ -21,6 +21,21 @@ interface OrganizationTableProps {
   organizations: Organization[];
   onDelete: (organizationid: number) => void;
 }
+
+// OrganizationをBusinessCardに変換する関数
+const convertToBusinessCard = (org: Organization): BusinessCard => {
+  return {
+    businesscardid: org.businesscardid || 0,
+    phone: org.phone,
+    mobile: org.mobile,
+    email: org.email,
+    imageurl: org.imageurl,
+    organization: { organizationname: org.organizationname },
+    region: null,
+    category: null,
+    representative: null
+  };
+};
 
 export default function OrganizationTable({ organizations, onDelete }: OrganizationTableProps) {
   const [selectedCard, setSelectedCard] = useState<Organization | null>(null);
@@ -88,7 +103,7 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
 
       {selectedCard && (
         <BusinessCardEditModal
-          card={selectedCard}
+          card={convertToBusinessCard(selectedCard)}
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           onUpdate={handleUpdate}
