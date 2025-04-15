@@ -11,7 +11,7 @@ const supabase = createClient(
 );
 
 export interface BusinessCard {
-  businesscardid: number;
+  businesscardid: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;

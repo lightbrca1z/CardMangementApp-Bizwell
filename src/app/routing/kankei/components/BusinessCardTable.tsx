@@ -132,16 +132,20 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
         </table>
       </div>
       {selectedCard && (
-        <BusinessCardEditModal
-          card={selectedCard}
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onUpdate={() => {
-            setIsEditModalOpen(false);
-            onDelete();
-          }}
-        />
-      )}
+  <BusinessCardEditModal
+    card={{
+      ...selectedCard,
+      businesscardid: String(selectedCard.businesscardid),
+    }}
+    isOpen={isEditModalOpen}
+    onClose={() => setIsEditModalOpen(false)}
+    onUpdate={() => {
+      setIsEditModalOpen(false);
+      onDelete();
+    }}
+  />
+)}
+
     </>
   );
 } 
