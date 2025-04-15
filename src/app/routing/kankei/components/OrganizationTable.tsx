@@ -5,7 +5,8 @@ import { createClient } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
-import BusinessCardEditModal, { BusinessCard } from '@/components/BusinessCardEditModal';
+import BusinessCardEditModal from '@/components/BusinessCardEditModal';
+import { BusinessCard } from '../types';
 
 interface Organization {
   organizationid: number;
