@@ -11,7 +11,7 @@ import { BusinessCard } from '../types';
 interface Organization {
   organizationid: number;
   organizationname: string;
-  businesscardid?: number;
+  businesscardid?: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
@@ -26,11 +26,11 @@ interface OrganizationTableProps {
 // OrganizationをBusinessCardに変換する関数
 const convertToBusinessCard = (org: Organization): BusinessCard => {
   return {
-    businesscardid: String(org.businesscardid || 0),
-    phone: org.phone || '',
-    mobile: org.mobile || '',
-    email: org.email || '',
-    imageurl: org.imageurl || '',
+    businesscardid: org.businesscardid || '',
+    phone: org.phone || null,
+    mobile: org.mobile || null,
+    email: org.email || null,
+    imageurl: org.imageurl || null,
     organization: { organizationname: org.organizationname },
     region: { regionname: '' },
     category: { categoryname: '' },
@@ -107,10 +107,7 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
           card={convertToBusinessCard(selectedCard)}
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          onUpdate={() => {
-            setIsEditModalOpen(false);
-            onDelete(selectedCard.organizationid);
-          }}
+          onUpdate={handleUpdate}
         />
       )}
 
