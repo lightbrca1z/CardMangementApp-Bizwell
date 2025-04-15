@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Button } from '@/components/ui/button';
+import { Button } from './ui/button';
 import { FaTimes } from 'react-icons/fa';
 
 const supabase = createClient(
@@ -10,7 +10,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-interface BusinessCard {
+export interface BusinessCard {
   businesscardid: number;
   phone?: string | null;
   mobile?: string | null;
