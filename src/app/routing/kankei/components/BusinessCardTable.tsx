@@ -112,7 +112,7 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
                 <td className="px-2 py-1">
                   <div className="flex justify-center">
                     <button
-                      onClick={() => card.businesscardid && handleDelete(card.businesscardid)}
+                      onClick={() => card.businesscardid && handleDelete(String(card.businesscardid))}
                       disabled={isDeleting || !card.businesscardid}
                       className="flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
                     >
