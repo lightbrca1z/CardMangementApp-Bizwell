@@ -91,10 +91,22 @@ export default function CategoryList() {
           mobile,
           email,
           imageurl,
-          organization:organizationid (organizationid, organizationname),
-          region:regionid (regionid, regionname),
-          category:categoryid (categoryid, categoryname),
-          representative:representativeid (representativeid, representativename)
+          organization:organizationid (
+            organizationid,
+            organizationname
+          ),
+          region:regionid (
+            regionid,
+            regionname
+          ),
+          category:categoryid (
+            categoryid,
+            categoryname
+          ),
+          representative:representativeid (
+            representativeid,
+            representativename
+          )
         `);
 
       if (selectedCategory) {
@@ -105,25 +117,39 @@ export default function CategoryList() {
 
       if (error) throw error;
 
-      const transformedData = data?.map((item) => ({
-        businesscardid: item.businesscardid,
-        phone: item.phone,
-        mobile: item.mobile,
-        email: item.email,
-        imageurl: item.imageurl,
-        organization: item.organization?.[0] || null,
-        region: item.region?.[0] || null,
-        category: item.category?.[0] || null,
-        representative: item.representative?.[0] || null
-      })) || [];
+      const transformedData = (data || []).map(item => {
+        const org = Array.isArray(item.organization) ? item.organization[0] : item.organization;
+        const reg = Array.isArray(item.region) ? item.region[0] : item.region;
+        const cat = Array.isArray(item.category) ? item.category[0] : item.category;
+        const rep = Array.isArray(item.representative) ? item.representative[0] : item.representative;
 
-      const filteredData = transformedData.filter((contact) => {
-        const fieldValue = contact[searchField as keyof typeof contact]?.toString().toLowerCase() || '';
-        return fieldValue.includes(searchQuery.toLowerCase());
+        return {
+          businesscardid: item.businesscardid,
+          phone: item.phone,
+          mobile: item.mobile,
+          email: item.email,
+          imageurl: item.imageurl,
+          organization: org ? {
+            organizationid: org.organizationid,
+            organizationname: org.organizationname
+          } : null,
+          region: reg ? {
+            regionid: reg.regionid,
+            regionname: reg.regionname
+          } : null,
+          category: cat ? {
+            categoryid: cat.categoryid,
+            categoryname: cat.categoryname
+          } : null,
+          representative: rep ? {
+            representativeid: rep.representativeid,
+            representativename: rep.representativename
+          } : null
+        };
       });
 
-      setContacts(filteredData);
-      setFilteredContacts(filteredData);
+      setContacts(transformedData);
+      setFilteredContacts(transformedData);
     } catch (error) {
       console.error('Error fetching contacts:', error);
       setError('データの取得に失敗しました');

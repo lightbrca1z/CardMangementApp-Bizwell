@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { User } from '@supabase/supabase-js'
 import { useLogout } from '@/components/components/logout'
 import Link from 'next/link'
+import Header2 from '@/components/Header2'
 
 
 export default function Home() {
@@ -39,15 +40,7 @@ export default function Home() {
     <div className="min-h-screen bg-white flex flex-col items-center p-6 sm:p-12 font-sans">
       {/* ヘッダー */}
       <header className="w-full flex justify-center items-center max-w-6xl">
-        <div className="flex justify-center">
-          <Image 
-            src="/images/logo.png" 
-            alt="ビズウェルロゴ" 
-            width={200} 
-            height={80}
-            className="object-contain"
-          />
-        </div>
+      <Header2 />
       </header>
 
       {/* 認証済みユーザー表示 */}

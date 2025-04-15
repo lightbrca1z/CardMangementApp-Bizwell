@@ -16,14 +16,6 @@ export default function Header() {
           priority
         />
       </div>
-      <nav className="flex space-x-4 text-pink-700 text-sm sm:text-base">
-        <Link href="/">TOP</Link>
-        <Link href="/routing/tanto">担当者一覧</Link>
-        <Link href="/routing/kankei">関係機関一覧</Link>
-        <Link href="/routing/kubun">区分一覧</Link>
-        <Link href="/routing/area">エリア一覧</Link>
-        <Link href="#" onClick={(e) => { e.preventDefault(); logout() }}>ログアウト</Link>
-      </nav>
     </header>
   );
 } 
