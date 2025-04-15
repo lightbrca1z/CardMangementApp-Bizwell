@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { Button } from './ui/button';
+import { Button } from '@/components/ui/button';
 import { FaTimes } from 'react-icons/fa';
 
 const supabase = createClient(
