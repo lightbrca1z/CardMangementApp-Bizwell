@@ -26,14 +26,14 @@ interface OrganizationTableProps {
 const convertToBusinessCard = (org: Organization): BusinessCard => {
   return {
     businesscardid: org.businesscardid || 0,
-    phone: org.phone,
-    mobile: org.mobile,
-    email: org.email,
-    imageurl: org.imageurl,
+    phone: org.phone || '',
+    mobile: org.mobile || '',
+    email: org.email || '',
+    imageurl: org.imageurl || '',
     organization: { organizationname: org.organizationname },
-    region: null,
-    category: null,
-    representative: null
+    region: { regionname: '' },
+    category: { categoryname: '' },
+    representative: { representativename: '' }
   };
 };
 
