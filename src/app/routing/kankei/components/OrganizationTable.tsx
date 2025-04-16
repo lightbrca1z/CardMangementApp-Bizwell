@@ -7,6 +7,11 @@ import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import BusinessCardEditModal, { BusinessCard } from '@/components/BusinessCardEditModal';
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
 interface Organization {
   organizationid: number;
   organizationname: string;
@@ -23,10 +28,6 @@ interface OrganizationTableProps {
 }
 
 const convertToBusinessCard = (org: Organization): BusinessCard => {
-  if (!org.businesscardid) {
-    throw new Error('businesscardid is required');
-  }
-
   return {
     businesscardid: org.businesscardid,
     phone: org.phone || null,
@@ -56,9 +57,21 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
     }
   };
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     try {
       if (selectedCard) {
+        // ここでSupabaseの更新処理を実装
+        const { error } = await supabase
+          .from('organization')
+          .update({
+            phone: selectedCard.phone,
+            mobile: selectedCard.mobile,
+            email: selectedCard.email
+          })
+          .eq('organizationid', selectedCard.organizationid);
+
+        if (error) throw error;
+        
         onDelete(selectedCard.organizationid);
       }
       setIsEditModalOpen(false);
@@ -131,6 +144,7 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
           onUpdate={handleUpdate}
         />
       )}
+
     </div>
   );
 } 
