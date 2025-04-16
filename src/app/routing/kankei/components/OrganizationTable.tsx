@@ -10,7 +10,7 @@ import BusinessCardEditModal, { BusinessCard } from '@/components/BusinessCardEd
 interface Organization {
   organizationid: number;
   organizationname: string;
-  businesscardid?: string;
+  businesscardid: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
@@ -22,10 +22,13 @@ interface OrganizationTableProps {
   onDelete: (organizationid: number) => void;
 }
 
-// OrganizationをBusinessCardに変換する関数
 const convertToBusinessCard = (org: Organization): BusinessCard => {
+  if (!org.businesscardid) {
+    throw new Error('businesscardid is required');
+  }
+
   return {
-    businesscardid: org.businesscardid || '',
+    businesscardid: org.businesscardid,
     phone: org.phone || null,
     mobile: org.mobile || null,
     email: org.email || null,
@@ -40,38 +43,57 @@ const convertToBusinessCard = (org: Organization): BusinessCard => {
 export default function OrganizationTable({ organizations, onDelete }: OrganizationTableProps) {
   const [selectedCard, setSelectedCard] = useState<Organization | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleEdit = (organization: Organization) => {
-    setSelectedCard(organization);
-    setIsEditModalOpen(true);
+    try {
+      setSelectedCard(organization);
+      setIsEditModalOpen(true);
+      setError(null);
+    } catch (err) {
+      setError('編集モードの開始に失敗しました');
+      console.error('Edit mode error:', err);
+    }
   };
 
   const handleUpdate = () => {
-    if (selectedCard) {
-      onDelete(selectedCard.organizationid);
+    try {
+      if (selectedCard) {
+        onDelete(selectedCard.organizationid);
+      }
+      setIsEditModalOpen(false);
+      setError(null);
+    } catch (err) {
+      setError('更新に失敗しました');
+      console.error('Update error:', err);
     }
-    setIsEditModalOpen(false);
   };
 
   return (
     <div className="overflow-x-auto">
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+          {error}
+        </div>
+      )}
       <table className="w-full table-auto border border-collapse border-blue-300">
         <thead className="bg-blue-200">
           <tr>
-            <th>関係機関名</th>
-            <th>詳細・編集</th>
-            <th>削除</th>
+            <th className="p-2">関係機関名</th>
+            <th className="p-2">詳細・編集</th>
+            <th className="p-2">削除</th>
           </tr>
         </thead>
         <tbody>
           {organizations.map((organization) => (
             <tr key={organization.organizationid} className="text-center border-t">
-              <td>{organization.organizationname}</td>
-              <td>
+              <td className="p-2">{organization.organizationname}</td>
+              <td className="p-2">
                 <div className="flex justify-center gap-2">
                   <Button
                     className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-2 px-3 py-1"
                     onClick={() => openImagePopup(organization.imageurl)}
+                    disabled={!organization.imageurl}
                   >
                     <FaEye />
                     確認
@@ -85,15 +107,15 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
                   </Button>
                 </div>
               </td>
-              <td className="px-2 py-1">
+              <td className="p-2">
                 <div className="flex justify-center">
-                  <button
+                  <Button
                     onClick={() => onDelete(organization.organizationid)}
                     className="flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     <FaTrash className="mr-1" size={14} />
                     削除
-                  </button>
+                  </Button>
                 </div>
               </td>
             </tr>
@@ -109,7 +131,6 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
           onUpdate={handleUpdate}
         />
       )}
-
     </div>
   );
 } 
