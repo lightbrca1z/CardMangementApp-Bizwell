@@ -28,6 +28,10 @@ interface OrganizationTableProps {
 }
 
 const convertToBusinessCard = (org: Organization): BusinessCard => {
+  if (!org.businesscardid) {
+    throw new Error('businesscardid is required');
+  }
+
   return {
     businesscardid: org.businesscardid,
     phone: org.phone || null,
@@ -60,7 +64,6 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
   const handleUpdate = async () => {
     try {
       if (selectedCard) {
-        // ここでSupabaseの更新処理を実装
         const { error } = await supabase
           .from('organization')
           .update({
