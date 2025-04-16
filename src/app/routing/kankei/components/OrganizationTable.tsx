@@ -5,12 +5,12 @@ import { createClient } from '@supabase/supabase-js';
 import { Button } from "@/components/ui/button";
 import { openImagePopup } from "@/components/utils/imageUtils";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
-import BusinessCardEditModal from '@/components/BusinessCardEditModal';
+import BusinessCardEditModal, { BaseCard } from '@/components/BusinessCardEditModal';
 
 interface Organization {
   organizationid: number;
   organizationname: string;
-  businesscardid?: number;
+  businesscardid: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
@@ -37,6 +37,14 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
     }
     setIsEditModalOpen(false);
   };
+
+  const convertToBaseCard = (org: Organization): BaseCard => ({
+    businesscardid: org.businesscardid,
+    phone: org.phone,
+    mobile: org.mobile,
+    email: org.email,
+    imageurl: org.imageurl
+  });
 
   return (
     <div className="overflow-x-auto">
@@ -88,7 +96,7 @@ export default function OrganizationTable({ organizations, onDelete }: Organizat
 
       {selectedCard && (
         <BusinessCardEditModal
-          card={selectedCard}
+          card={convertToBaseCard(selectedCard)}
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           onUpdate={handleUpdate}
