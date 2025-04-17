@@ -46,12 +46,12 @@ export default function FormFields({
       <select
         value={formData[field]}
         onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-        className="w-full p-2 rounded bg-purple-800 text-white border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        className="w-full p-2 rounded bg-white-800 text-black border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
       >
         <option value="">選択してください</option>
         {options.map((opt) => (
-          <option key={`${field}-${opt.id}-${opt.name}`} value={opt.id}>
-            {opt[optionLabelKey]}
+          <option key={`${field}-${opt.id}`} value={opt.name}>
+            {opt.name}
           </option>
         ))}
       </select>
@@ -79,10 +79,10 @@ export default function FormFields({
             type="text"
             value={formData[field as keyof FormData]}
             onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-            className="w-full p-2 rounded bg-purple-800 text-white border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full p-2 rounded bg-white-800 text-black border border-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
       ))}
     </>
   );
-} 
+}

@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function ActionButtons() {
   return (
     <div className="flex items-center space-x-4">
-      <Link href="/routing/kubun/new">
+      <Link href="/routing/shinkitouroku">
         <Button className="bg-green-500 text-white hover:bg-green-600">
           新規登録
         </Button>

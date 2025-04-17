@@ -56,32 +56,37 @@ export default function ContactList() {
           mobile,
           email,
           imageurl,
-          organization:organizationid!inner (
+          organization:organizationid (
             organizationname
           ),
-          region:regionid!inner (
+          region:regionid (
             regionname
           ),
-          category:categoryid!inner (
+          category:categoryid (
             categoryname
           ),
-          representative:representativeid!inner (
+          representative:representativeid (
             representativename
           )
-        `);
+        `)
+        .order('businesscardid', { ascending: true });
 
       if (error) {
         throw error;
       }
 
       if (data) {
-        const typedData = data.map(item => ({
-          ...item,
-          organization: item.organization || null,
-          region: item.region || null,
-          category: item.category || null,
-          representative: item.representative || null
-        })) as unknown as Contact[];
+        const typedData = data.map((item: any) => ({
+          businesscardid: item.businesscardid,
+          phone: item.phone,
+          mobile: item.mobile,
+          email: item.email,
+          imageurl: item.imageurl,
+          organization: item.organization ? { organizationname: item.organization.organizationname } : null,
+          region: item.region ? { regionname: item.region.regionname } : null,
+          category: item.category ? { categoryname: item.category.categoryname } : null,
+          representative: item.representative ? { representativename: item.representative.representativename } : null
+        })) as Contact[];
         setContacts(typedData);
         setFilteredContacts(typedData);
       }
