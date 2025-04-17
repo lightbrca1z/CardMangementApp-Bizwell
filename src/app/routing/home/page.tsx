@@ -38,8 +38,8 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center p-6 sm:p-12 font-sans">
       {/* ヘッダー */}
-      <header className="w-full flex justify-center items-center max-w-6xl">
-        <div className="flex justify-center">
+      <header className="w-full flex justify-center items-center max-w-6xl relative">
+        <div className="flex justify-center relative z-10">
           <Image 
             src="/images/logo.png" 
             alt="ビズウェルロゴ" 
@@ -68,8 +68,19 @@ export default function Home() {
             ⑧ログアウト</a></li>
           </ul>
         </div>
-        <div className="sm:w-1/3 w-full flex justify-center">
-          <Image src="/images/robot.png" alt="ロボット" width={120} height={120} />
+        <div className="sm:w-1/3 w-full flex justify-center relative">
+          <div className="absolute z-0 -top-[20%] left-0">
+            <Image 
+              src="/images/吹き出し画像.png" 
+              alt="吹き出し背景" 
+              width={1000} 
+              height={1000}
+              className="object-contain"
+            />
+          </div>
+          <div className="relative z-10">
+            <Image src="/images/robot.png" alt="ロボット" width={120} height={120} />
+          </div>
         </div>
       </main>
     </div>
