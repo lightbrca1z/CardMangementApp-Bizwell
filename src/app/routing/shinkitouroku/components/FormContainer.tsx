@@ -196,6 +196,7 @@ export default function FormContainer() {
         .join('\n');
       setError(errorMessage);
       setIsSubmitting(false);
+      alert('入力チェックのエラーが表示されました！');
       return;
     }
 

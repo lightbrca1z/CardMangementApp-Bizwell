@@ -94,9 +94,9 @@ export default function MasterTable({ masterType, masterData, onUpdate }: Master
                   <span className="text-sm text-gray-900">{item.name}</span>
                 )}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td className="px-6 py-4 whitespace-nowrap text-right">
                 {editingId === item.id ? (
-                  <div className="space-x-2">
+                  <div className="flex justify-end space-x-2">
                     <Button
                       onClick={() => handleUpdate(item.id)}
                       className="bg-green-500 text-white hover:bg-green-600"
@@ -111,7 +111,7 @@ export default function MasterTable({ masterType, masterData, onUpdate }: Master
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-x-2">
+                  <div className="flex justify-end space-x-2">
                     <Button
                       onClick={() => handleEdit(item)}
                       className="bg-blue-500 text-white hover:bg-blue-600"
