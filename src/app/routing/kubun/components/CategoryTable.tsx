@@ -3,37 +3,20 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { openImagePopup } from "@/components/utils/imageUtils";
+import DeleteButton from "@/components/utils/DeleteButton";
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
-import BusinessCardEditModal from '@/components/BusinessCardEditModal';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabaseClient';
 
 interface Contact {
-  businesscardid: string;
-  phone: string | null;
-  mobile: string | null;
-  email: string | null;
-  imageurl: string | null;
-  organization: {
-    organizationid: string;
-    organizationname: string;
-  } | null;
-  region: {
-    regionid: string;
-    regionname: string;
-  } | null;
-  category: {
-    categoryid: string;
-    categoryname: string;
-  } | null;
-  representative: {
-    representativeid: string;
-    representativename: string;
-  } | null;
+  businesscardid: number;
+  phone?: string | null;
+  mobile?: string | null;
+  email?: string | null;
+  imageurl?: string | null;
+  organization: { organizationname: string } | null;
+  region: { regionname: string } | null;
+  category: { categoryname: string } | null;
+  representative: { representativename: string } | null;
 }
 
 interface CategoryTableProps {
@@ -42,55 +25,27 @@ interface CategoryTableProps {
 }
 
 export default function CategoryTable({ contacts, onDelete }: CategoryTableProps) {
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedCard, setSelectedCard] = useState<Contact | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  if (!contacts || contacts.length === 0) {
-    return <div className="text-center text-gray-500 py-4">区分が登録されていません</div>;
-  }
-
   const handleEdit = (contact: Contact) => {
-    setSelectedContact(contact);
+    setSelectedCard(contact);
     setIsEditModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('本当に削除しますか？')) {
-      return;
-    }
-
+    if (!confirm('本当に削除しますか？')) return;
     try {
       setIsDeleting(true);
-
-      // 関連する画像を削除
-      const { data: businessCard } = await supabase
-        .from('businesscard')
-        .select('imageurl')
-        .eq('businesscardid', id)
-        .single();
-
-      if (businessCard?.imageurl) {
-        const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
-        const path = businessCard.imageurl.replace(publicUrlPrefix, "");
-        await supabase.storage.from('images').remove([path]);
-      }
-
-      // 名刺データを削除
       const { error } = await supabase
         .from('businesscard')
         .delete()
         .eq('businesscardid', id);
-
-      if (error) {
-        throw error;
-      }
-
-      alert('削除が完了しました');
+      if (error) throw error;
       onDelete();
     } catch (error) {
       console.error('削除エラー:', error);
-      alert('削除に失敗しました');
     } finally {
       setIsDeleting(false);
     }
@@ -124,7 +79,7 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
               <td>{contact.email || '-'}</td>
               <td>
                 <div className="flex justify-center gap-2">
-                <Button
+                  <Button
                     className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-2 px-3 py-1"
                     onClick={() => openImagePopup(contact.imageurl)}
                   >
@@ -143,7 +98,7 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
               <td className="px-2 py-1">
                 <div className="flex justify-center">
                   <button
-                    onClick={() => handleDelete(contact.businesscardid)}
+                    onClick={() => handleDelete(contact.businesscardid.toString())}
                     disabled={isDeleting}
                     className="flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
                   >
@@ -154,20 +109,13 @@ export default function CategoryTable({ contacts, onDelete }: CategoryTableProps
               </td>
             </tr>
           ))}
+          {contacts.length === 0 && [...Array(4)].map((_, idx) => (
+            <tr key={`empty-${idx}`} className="text-center border-t h-12">
+              <td colSpan={9}></td>
+            </tr>
+          ))}
         </tbody>
       </table>
-
-      {selectedContact && (
-        <BusinessCardEditModal
-          card={selectedContact}
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onUpdate={() => {
-            setIsEditModalOpen(false);
-            onDelete();
-          }}
-        />
-      )}
     </div>
   );
 } 
