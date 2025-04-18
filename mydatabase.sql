@@ -16,8 +16,10 @@ CREATE TABLE category (
 
 -- INSERT INTO category
 INSERT INTO category (CategoryID, CategoryName) VALUES
-(1, '１１１'),
-(2, '２２２');
+(1, '新宿'),
+(2, '東京'),
+(3, '品川'),
+(4, '木場');
 
 -- CREATE TABLE organization
 CREATE TABLE organization (
@@ -27,8 +29,10 @@ CREATE TABLE organization (
 
 -- INSERT INTO organization
 INSERT INTO organization (OrganizationID, OrganizationName) VALUES
-(1, '２２２'),
-(2, '３３３');
+(1, 'A'),
+(2, 'B'),
+(3, 'C'),
+(4, 'D');
 
 -- CREATE TABLE region
 CREATE TABLE region (
@@ -38,7 +42,12 @@ CREATE TABLE region (
 
 -- INSERT INTO region
 INSERT INTO region (RegionID, RegionName) VALUES
-(1, '333');
+(1, '岡部'),
+(2, '花見'),
+(3, '金島'),
+(4, '山野'),
+(5, '大川楓'),
+(6, '末吉');
 
 -- CREATE TABLE representative
 CREATE TABLE representative (
@@ -48,8 +57,11 @@ CREATE TABLE representative (
 
 -- INSERT INTO representative
 INSERT INTO representative (RepresentativeID, RepresentativeName) VALUES
-(1, '３３３'),
-(2, '４４４');
+(1, '1'),
+(2, '2'),
+(3, '3'),
+(4, '4'),
+(5, '5');
 
 -- CREATE TABLE "user"
 CREATE TABLE "user" (
