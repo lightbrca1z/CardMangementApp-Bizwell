@@ -318,22 +318,22 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white p-6 rounded-lg w-full max-w-4xl my-8">
-        <div className="flex justify-between items-center mb-6 pb-4 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">名刺情報の編集</h2>
+      <div className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-4xl my-4 sm:my-8 max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4 sm:mb-6 pb-2 sm:pb-4 border-b">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">名刺情報の編集</h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <FaTimes size={24} />
+            <FaTimes size={20} className="sm:size-6" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* 基本情報セクション */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700 pb-2 border-b">基本情報</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-700 pb-2 border-b">基本情報</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -343,7 +343,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -355,7 +355,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.region}
                   onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -367,7 +367,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.organization}
                   onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -379,14 +379,14 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.representative}
                   onChange={(e) => setFormData({ ...formData, representative: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             {/* 連絡先情報セクション */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700 pb-2 border-b">連絡先情報</h3>
+            <div className="space-y-3 sm:space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-700 pb-2 border-b">連絡先情報</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -396,7 +396,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -408,7 +408,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.mobile}
                   onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -420,30 +420,30 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
           </div>
 
           {/* 名刺画像セクション */}
-          <div className="mt-8 pt-6 border-t">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">名刺画像</h3>
-            <div className="flex items-start space-x-6">
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4">名刺画像</h3>
+            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
               <div className="flex-shrink-0">
                 {(previewUrl || signedUrl) && (
                   <div className="relative">
                     <img
                       src={previewUrl || signedUrl || ''}
                       alt="名刺画像"
-                      className="w-48 h-48 object-cover rounded-lg shadow-md"
+                      className="w-32 h-32 sm:w-48 sm:h-48 object-cover rounded-lg shadow-md"
                     />
                   </div>
                 )}
               </div>
-              <div className="flex-1">
-                <label className="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors">
-                  <FaUpload className="mr-2" size={16} />
+              <div className="flex-1 min-w-0">
+                <label className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors text-sm sm:text-base">
+                  <FaUpload className="mr-2" size={14} className="sm:size-4" />
                   画像を選択
                   <input
                     type="file"
@@ -452,7 +452,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                     className="hidden"
                   />
                 </label>
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-xs sm:text-sm text-gray-500">
                   対応形式: JPEG, PNG, GIF（最大10MB）
                 </p>
               </div>
@@ -460,27 +460,27 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
           </div>
 
           {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
-            {error}
-          </div>
-        )}
+            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
+              {error}
+            </div>
+          )}
 
           {/* ボタンセクション */}
-          <div className="flex justify-end space-x-4 mt-8 pt-6 border-t">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t">
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="flex items-center justify-center px-4 sm:px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base"
             >
-              <FaTimesCircle className="mr-2" size={16} />
+              <FaTimesCircle className="mr-2" size={14} className="sm:size-4" />
               キャンセル
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className="flex items-center px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center justify-center px-4 sm:px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
             >
-              <FaSave className="mr-2" size={16} />
+              <FaSave className="mr-2" size={14} className="sm:size-4" />
               {isLoading ? '更新中...' : '更新'}
             </button>
           </div>
