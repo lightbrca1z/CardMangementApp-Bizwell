@@ -65,73 +65,136 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
   };
 
   return (
-    <>
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border border-collapse border-blue-300">
-          <thead className="bg-blue-200">
+    <div className="overflow-x-auto">
+      {/* デスクトップ表示用テーブル */}
+      <div className="hidden md:block">
+        <table className="w-full table-auto border border-collapse border-gray-200">
+          <thead className="bg-gray-100">
             <tr>
-              <th>区分</th>
-              <th>エリア</th>
-              <th>関係機関名</th>
-              <th>担当者</th>
-              <th>TEL</th>
-              <th>携帯</th>
-              <th>メール</th>
-              <th>詳細・編集</th>
-              <th>削除</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">区分</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">エリア</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">関係機関名</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">担当者</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">TEL</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">携帯</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">メール</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">詳細・編集</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">削除</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {businessCards.map((card) => (
-              <tr key={card.businesscardid} className="text-center border-t">
-                <td>{card.category?.categoryname || '-'}</td>
-                <td>{card.region?.regionname || '-'}</td>
-                <td>{card.organization?.organizationname || '-'}</td>
-                <td>{card.representative?.representativename || '-'}</td>
-                <td>{card.phone || '-'}</td>
-                <td>{card.mobile || '-'}</td>
-                <td>{card.email || '-'}</td>
-                <td>
-                  <div className="flex justify-center gap-2">
+              <tr key={card.businesscardid} className="hover:bg-gray-50">
+                <td className="px-4 py-2 text-sm text-gray-900">{card.category?.categoryname || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{card.region?.regionname || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{card.organization?.organizationname || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{card.representative?.representativename || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{card.phone || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{card.mobile || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{card.email || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  <div className="flex space-x-2">
                     <Button
-                      className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-2 px-3 py-1"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => openImagePopup(card.imageurl)}
+                      className="text-blue-600 hover:text-blue-800"
                     >
-                      <FaEye />
-                      確認
+                      <FaEye className="h-4 w-4" />
                     </Button>
                     <Button
-                      className="bg-green-500 text-white hover:bg-green-600 flex items-center gap-2 px-3 py-1"
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleEdit(card)}
+                      className="text-green-600 hover:text-green-800"
                     >
-                      <FaEdit />
-                      編集
+                      <FaEdit className="h-4 w-4" />
                     </Button>
                   </div>
                 </td>
-                <td className="px-2 py-1">
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => card.businesscardid && handleDelete(card.businesscardid)}
-                      disabled={isDeleting || !card.businesscardid}
-                      className="flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-                    >
-                      <FaTrash className="mr-1" size={14} />
-                      {isDeleting ? '削除中...' : '削除'}
-                    </button>
-                  </div>
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(card.businesscardid)}
+                    disabled={isDeleting}
+                    className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                  >
+                    <FaTrash className="h-4 w-4" />
+                  </Button>
                 </td>
-              </tr>
-            ))}
-            {businessCards.length === 0 && [...Array(4)].map((_, idx) => (
-              <tr key={`empty-${idx}`} className="text-center border-t h-12">
-                <td colSpan={9}></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      {selectedCard && (
+
+      {/* モバイル表示用カード */}
+      <div className="md:hidden space-y-4 p-4">
+        {businessCards.map((card) => (
+          <div key={card.businesscardid} className="bg-white rounded-lg shadow p-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-gray-900">{card.representative?.representativename || '-'}</h3>
+                  <p className="text-sm text-gray-500">{card.organization?.organizationname || '-'}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openImagePopup(card.imageurl)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <FaEye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(card)}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    <FaEdit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(card.businesscardid)}
+                    disabled={isDeleting}
+                    className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                  >
+                    <FaTrash className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-500">区分:</span>
+                  <span className="ml-2">{card.category?.categoryname || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">エリア:</span>
+                  <span className="ml-2">{card.region?.regionname || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">TEL:</span>
+                  <span className="ml-2">{card.phone || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">携帯:</span>
+                  <span className="ml-2">{card.mobile || '-'}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-gray-500">メール:</span>
+                  <span className="ml-2">{card.email || '-'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {isEditModalOpen && selectedCard && (
         <BusinessCardEditModal
           card={selectedCard}
           isOpen={isEditModalOpen}
@@ -142,6 +205,6 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
           }}
         />
       )}
-    </>
+    </div>
   );
 } 
