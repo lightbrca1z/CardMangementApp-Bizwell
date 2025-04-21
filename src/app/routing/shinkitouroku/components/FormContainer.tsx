@@ -318,19 +318,33 @@ export default function FormContainer() {
   };
 
   return (
-    <main className="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
-      <div className="bg-purple-900 text-white p-6 rounded-2xl w-full lg:w-2/3 shadow-lg">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-2xl">入力フォーム</h2>
+    <main className="flex flex-col lg:flex-row gap-4 max-w-6xl mx-auto px-4 py-4 bg-white">
+      {/* 画像アップロードコンポーネント - モバイルでは上に表示 */}
+      <div className="bg-white text-gray-800 p-4 rounded-2xl w-full lg:w-1/3 shadow-lg order-1 lg:order-2 border border-gray-200">
+        <h2 className="bg-gray-100 text-center text-xl font-bold py-2 rounded-t-2xl mb-2 border-b border-gray-200">画像アップロード</h2>
+        <div className="space-y-2">
+          <input type="file" accept="image/*" onChange={handleFileChange} className="w-full" />
+          {previewUrl && (
+            <div className="mt-2">
+              <img src={previewUrl} alt="プレビュー" className="max-w-full h-auto rounded" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 入力フォーム - モバイルでは下に表示 */}
+      <div className="bg-white text-gray-800 p-4 rounded-2xl w-full lg:w-2/3 shadow-lg order-2 lg:order-1 border border-gray-200">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="bg-gray-100 text-center text-xl font-bold py-2 rounded-t-2xl border-b border-gray-200">入力フォーム</h2>
           <Link href="/routing/kubunkankeitantou-shinkitouroku">
-            <Button className="bg-blue-500 text-white hover:bg-blue-600 px-4 py-2 rounded-lg">区分・関係機関・担当者管理</Button>
+            <Button className="bg-blue-500 text-white hover:bg-blue-600 px-3 py-1 rounded-lg text-sm">区分・関係機関・担当者管理</Button>
           </Link>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm flex flex-col items-start w-full">
+        <form onSubmit={handleSubmit} className="space-y-2 text-sm flex flex-col items-start w-full">
           {error && (
-            <div className="w-full p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
-              <h3 className="font-bold mb-2">以下の項目を確認してください：</h3>
-              <ul className="list-disc list-inside space-y-1">
+            <div className="w-full p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 mb-2">
+              <h3 className="font-bold mb-1">以下の項目を確認してください：</h3>
+              <ul className="list-disc list-inside space-y-0.5">
                 {error.split('\n').map((errorMessage, index) => (
                   <li key={index} className="text-sm">
                     {errorMessage}
@@ -347,24 +361,12 @@ export default function FormContainer() {
             representatives={representatives}
             regions={regions}
           />
-          <div className="w-full flex justify-end space-x-4">
-            <Button type="submit" className="bg-green-500 text-white hover:bg-green-600" disabled={isSubmitting}>
+          <div className="w-full flex justify-end space-x-2 mt-2">
+            <Button type="submit" className="bg-green-500 text-white hover:bg-green-600 px-3 py-1" disabled={isSubmitting}>
               {isSubmitting ? '登録中...' : '登録'}
             </Button>
           </div>
         </form>
-      </div>
-
-      <div className="bg-purple-900 text-white p-6 rounded-2xl w-full lg:w-1/3 shadow-lg">
-        <h2 className="bg-purple-400 text-center text-xl font-bold py-2 rounded-t-2xl mb-4">画像アップロード</h2>
-        <div className="space-y-4">
-          <input type="file" accept="image/*" onChange={handleFileChange} className="w-full" />
-          {previewUrl && (
-            <div className="mt-4">
-              <img src={previewUrl} alt="プレビュー" className="max-w-full h-auto rounded" />
-            </div>
-          )}
-        </div>
       </div>
     </main>
   );
