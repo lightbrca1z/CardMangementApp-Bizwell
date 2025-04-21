@@ -146,25 +146,58 @@ export default function ContactList() {
   };
 
   return (
-    <div className="p-4 bg-green-100 min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       <Header />
-      <div className="flex items-center justify-between mb-4">
-        <ActionButtons />
-        <div className="flex items-center space-x-4">
-          <SearchFieldSelect 
-            value={searchField} 
-            onChange={handleFieldChange} 
-            fields={searchFields}
-          />
-          <SearchBarWithButton 
-            searchQuery={searchQuery} 
-            onSearchChange={handleSearch} 
-            onSearchClick={handleSearchClick}
-          />
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">担当者一覧</h1>
+          
+          {/* 検索セクション */}
+          <div className="bg-white rounded-lg shadow p-4 mb-6">
+            <div className="flex flex-col items-end space-y-4">
+              {/* 検索フィールド選択 */}
+              <div className="w-full md:w-1/3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">検索項目</label>
+                <SearchFieldSelect
+                  fields={searchFields}
+                  value={searchField}
+                  onChange={handleFieldChange}
+                />
+              </div>
+
+              {/* 検索バー */}
+              <div className="w-full md:w-1/3">
+                <label className="block text-sm font-medium text-gray-700 mb-2">検索キーワード</label>
+                <div className="flex gap-2">
+                  <SearchBarWithButton
+                    searchQuery={searchQuery}
+                    onSearchChange={handleSearch}
+                    onSearchClick={handleSearchClick}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* アクションボタン */}
+          <div className="flex justify-start mb-4">
+            <ActionButtons
+              onAdd={() => window.location.href = '/routing/shinkitouroku'}
+              onDelete={handleDelete}
+            />
+          </div>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <ContactTable contacts={filteredContacts} onDelete={handleDelete} />
         </div>
       </div>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      <ContactTable contacts={filteredContacts} onDelete={handleDelete} />
     </div>
   );
 } 

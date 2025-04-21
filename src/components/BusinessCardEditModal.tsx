@@ -26,7 +26,7 @@ interface BusinessCardEditModalProps {
   card: BaseCard;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate: () => void;
+  onUpdate: (updatedCard: BaseCard) => void;
 }
 
 export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate }: BusinessCardEditModalProps) {
@@ -300,7 +300,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
 
         // 更新成功時のメッセージをシンプルに
         alert('登録が更新されました');
-        onUpdate();
+        onUpdate({ ...businesscardData, businesscardid: card.businesscardid });
         onClose();
       } catch (error) {
         if (error instanceof Error) {

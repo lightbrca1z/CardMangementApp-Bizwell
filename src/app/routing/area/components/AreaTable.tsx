@@ -66,64 +66,133 @@ export default function AreaTable({ areas, onDelete }: AreaTableProps) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full table-auto border border-collapse border-blue-300">
-        <thead className="bg-blue-200">
-          <tr>
-            <th>区分</th>
-            <th>エリア</th>
-            <th>関係機関名</th>
-            <th>担当者</th>
-            <th>TEL</th>
-            <th>携帯</th>
-            <th>メール</th>
-            <th>詳細・編集</th>
-            <th>削除</th>
-          </tr>
-        </thead>
-        <tbody>
-          {areas.map((area) => (
-            <tr key={area.businesscardid} className="text-center border-t">
-              <td>{area.category?.categoryname || '-'}</td>
-              <td>{area.region?.regionname || '-'}</td>
-              <td>{area.organization?.organizationname || '-'}</td>
-              <td>{area.representative?.representativename || '-'}</td>
-              <td>{area.phone || '-'}</td>
-              <td>{area.mobile || '-'}</td>
-              <td>{area.email || '-'}</td>
-              <td>
-                <div className="flex justify-center gap-2">
+      {/* デスクトップ表示用テーブル */}
+      <div className="hidden md:block">
+        <table className="w-full table-auto border border-collapse border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">区分</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">エリア</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">関係機関名</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">担当者</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">TEL</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">携帯</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">メール</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">詳細・編集</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">削除</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {areas.map((area) => (
+              <tr key={area.businesscardid} className="hover:bg-gray-50">
+                <td className="px-4 py-2 text-sm text-gray-900">{area.category?.categoryname || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{area.region?.regionname || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{area.organization?.organizationname || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{area.representative?.representativename || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{area.phone || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{area.mobile || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{area.email || '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openImagePopup(area.imageurl)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <FaEye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(area)}
+                      className="text-green-600 hover:text-green-800"
+                    >
+                      <FaEdit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-900">
                   <Button
-                    className="bg-blue-500 text-white hover:bg-blue-600 flex items-center gap-2 px-3 py-1"
-                    onClick={() => openImagePopup(area.imageurl)}
-                  >
-                    <FaEye />
-                    確認
-                  </Button>
-                  <Button
-                    className="bg-green-500 text-white hover:bg-green-600 flex items-center gap-2 px-3 py-1"
-                    onClick={() => handleEdit(area)}
-                  >
-                    <FaEdit />
-                    編集
-                  </Button>
-                </div>
-              </td>
-              <td className="px-2 py-1">
-                <div className="flex justify-center">
-                  <button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleDelete(area.businesscardid)}
                     disabled={isDeleting}
-                    className="flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+                    className="text-red-600 hover:text-red-800 disabled:opacity-50"
                   >
-                    <FaTrash className="mr-1" size={14} />
-                    {isDeleting ? '削除中...' : '削除'}
-                  </button>
+                    <FaTrash className="h-4 w-4" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* モバイル表示用カード */}
+      <div className="md:hidden space-y-4 p-4">
+        {areas.map((area) => (
+          <div key={area.businesscardid} className="bg-white rounded-lg shadow p-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-gray-900">{area.representative?.representativename || '-'}</h3>
+                  <p className="text-sm text-gray-500">{area.organization?.organizationname || '-'}</p>
                 </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openImagePopup(area.imageurl)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <FaEye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEdit(area)}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    <FaEdit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(area.businesscardid)}
+                    disabled={isDeleting}
+                    className="text-red-600 hover:text-red-800 disabled:opacity-50"
+                  >
+                    <FaTrash className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-gray-500">区分:</span>
+                  <span className="ml-2">{area.category?.categoryname || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">エリア:</span>
+                  <span className="ml-2">{area.region?.regionname || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">TEL:</span>
+                  <span className="ml-2">{area.phone || '-'}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500">携帯:</span>
+                  <span className="ml-2">{area.mobile || '-'}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-gray-500">メール:</span>
+                  <span className="ml-2">{area.email || '-'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {selectedArea && (
         <BusinessCardEditModal
