@@ -2,21 +2,27 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
-export default function ActionButtons() {
+interface ActionButtonsProps {
+  onAdd?: () => void;
+  onDelete?: () => void;
+}
+
+export default function ActionButtons({ onAdd, onDelete }: ActionButtonsProps) {
   return (
     <div className="flex items-center space-x-4">
-      <Link href="/routing/shinkitouroku">
-        <Button className="bg-green-500 text-white hover:bg-green-600">
-          新規登録
-        </Button>
-      </Link>
-      <Link href="/routing/kubun">
-        <Button className="bg-purple-400 text-white hover:bg-purple-500">
-          区分一覧（全体）
-        </Button>
-      </Link>
+      <Button 
+        onClick={onAdd}
+        className="bg-green-500 text-white hover:bg-green-600"
+      >
+        新規登録
+      </Button>
+      <Button 
+        onClick={onDelete}
+        className="bg-purple-400 text-white hover:bg-purple-500"
+      >
+        区分一覧（全体）
+      </Button>
     </div>
   );
 } 

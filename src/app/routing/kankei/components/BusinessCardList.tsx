@@ -166,8 +166,12 @@ export default function BusinessCardList() {
           {/* アクションボタン */}
           <div className="flex justify-start mb-4">
             <ActionButtons
-              onAdd={() => window.location.href = '/routing/shinkitouroku'}
-              onDelete={handleDelete}
+              onAdd={() => {
+                window.location.href = '/routing/shinkitouroku';
+              }}
+              onDelete={() => {
+                window.location.href = '/routing/kankei';
+              }}
             />
           </div>
         </div>

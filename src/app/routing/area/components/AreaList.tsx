@@ -126,7 +126,7 @@ export default function AreaList() {
   };
 
   const handleDelete = () => {
-    fetchAreas();
+    window.location.href = '/routing/area';
   };
 
   return (

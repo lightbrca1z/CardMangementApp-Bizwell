@@ -29,6 +29,14 @@ interface BusinessCardEditModalProps {
   onUpdate: (updatedCard: BaseCard) => void;
 }
 
+type MaxIdData = {
+  businesscardid?: number;
+  categoryid?: number;
+  regionid?: number;
+  organizationid?: number;
+  representativeid?: number;
+};
+
 export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate }: BusinessCardEditModalProps) {
   const [formData, setFormData] = useState({
     phone: card.phone || '',
@@ -214,22 +222,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
               console.log(`[${table}] 重複検出、再検索を試みます`);
               
               // まず最新のIDを取得
-              const { data: maxIdData, error: maxIdError } = await supabase
-                .from(table)
-                .select(`${table}id`)
-                .order(`${table}id`, { ascending: false })
-                .limit(1);
-
-              if (maxIdError) {
-                console.error(`[${table}] 最大ID取得エラー:`, maxIdError);
-                throw new Error(`${table}の最大ID取得に失敗しました: ${maxIdError.message}`);
-              }
-
-              const nextId = maxIdData && maxIdData.length > 0 
-                ? parseInt(maxIdData[0][`${table}id`]) + 1 
-                : 1;
-
-              console.log(`[${table}] 次のIDを生成:`, nextId);
+              const nextId = await fetchMaxId(table);
 
               // 明示的なIDを指定して再作成を試みる
               const { data: retryData, error: retryError } = await supabase
@@ -311,6 +304,32 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchMaxId = async (table: string) => {
+    try {
+      const { data: maxIdData, error: maxIdError } = await supabase
+        .from(table)
+        .select(`${table}id`)
+        .order(`${table}id`, { ascending: false })
+        .limit(1);
+
+      if (maxIdError) {
+        throw maxIdError;
+      }
+
+      if (maxIdData && maxIdData.length > 0) {
+        const idField = `${table}id` as keyof MaxIdData;
+        const nextId = (maxIdData[0][idField] as number) + 1;
+        console.log(`[${table}] 次のIDを生成:`, nextId);
+        return nextId;
+      }
+
+      return 1;
+    } catch (error) {
+      console.error(`[${table}] 最大ID取得エラー:`, error);
+      return 1;
     }
   };
 

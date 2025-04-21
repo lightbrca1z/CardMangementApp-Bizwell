@@ -62,38 +62,60 @@ export default function Home() {
             ご用件をどうぞ・・・
           </p>
           <ul className="space-y-2 text-xs sm:text-sm">
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="/routing/shinkitouroku" className="block">
+            <li className="group">
+              <a 
+                href="/routing/shinkitouroku" 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ①新規の名刺を登録したい（新規登録）
               </a>
             </li>
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="/routing/tanto" className="block">
+            <li className="group">
+              <a 
+                href="/routing/tanto" 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ②担当者の名刺をみたい（担当者一覧）
               </a>
             </li>
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="/routing/kankei" className="block">
+            <li className="group">
+              <a 
+                href="/routing/kankei" 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ③関係機関の名刺がみたい（関係機関一覧）
               </a>
             </li>
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="/routing/kubun" className="block">
+            <li className="group">
+              <a 
+                href="/routing/kubun" 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ④区分分けした名刺をみたい（区分一覧）
               </a>
             </li>
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="/routing/area" className="block">
+            <li className="group">
+              <a 
+                href="/routing/area" 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ⑤エリア分けした名刺をみたい（エリア一覧）
               </a>
             </li>
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="#" className="block">
+            <li className="group">
+              <a 
+                href="#" 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ⑦おしゃべりに付き合ってほしい（暇つぶし）
               </a>
             </li>
-            <li className="hover:bg-purple-400 rounded p-1 transition-colors">
-              <a href="#" onClick={(e) => { e.preventDefault(); logout() }} className="block">
+            <li className="group">
+              <a 
+                href="#" 
+                onClick={(e) => { e.preventDefault(); logout() }} 
+                className="block p-2 rounded-lg transition-all duration-200 bg-purple-300 group-hover:bg-purple-400 group-hover:shadow-md group-hover:scale-[1.02] text-purple-900 hover:text-purple-800"
+              >
                 ⑧ログアウト
               </a>
             </li>

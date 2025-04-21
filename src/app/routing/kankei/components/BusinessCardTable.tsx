@@ -23,42 +23,27 @@ export default function BusinessCardTable({ businessCards, onDelete }: BusinessC
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('本当に削除しますか？')) {
+  const handleDelete = async (id: string | undefined) => {
+    if (!id) {
+      console.error('businesscardid is undefined');
       return;
     }
 
+    setIsDeleting(true);
     try {
-      setIsDeleting(true);
-
-      // 関連する画像を削除
-      const { data: businessCard } = await supabase
-        .from('businesscard')
-        .select('imageurl')
-        .eq('businesscardid', id)
-        .single();
-
-      if (businessCard?.imageurl) {
-        const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
-        const path = businessCard.imageurl.replace(publicUrlPrefix, "");
-        await supabase.storage.from('images').remove([path]);
-      }
-
-      // 名刺データを削除
       const { error } = await supabase
         .from('businesscard')
         .delete()
         .eq('businesscardid', id);
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      alert('削除が完了しました');
-      onDelete();
+      // 削除後に一覧を更新
+      if (onDelete) {
+        onDelete();
+      }
     } catch (error) {
-      console.error('削除エラー:', error);
-      alert('削除に失敗しました');
+      console.error('Error deleting business card:', error);
     } finally {
       setIsDeleting(false);
     }

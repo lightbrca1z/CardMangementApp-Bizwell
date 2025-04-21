@@ -14,7 +14,7 @@ const supabase = createClient(
 );
 
 interface Contact {
-  businesscardid: number;
+  businesscardid: string;
   phone?: string | null;
   mobile?: string | null;
   email?: string | null;
@@ -77,7 +77,7 @@ export default function CategoryList() {
 
       if (data) {
         const typedData = data.map((item: any) => ({
-          businesscardid: item.businesscardid,
+          businesscardid: String(item.businesscardid),
           phone: item.phone,
           mobile: item.mobile,
           email: item.email,
@@ -182,8 +182,12 @@ export default function CategoryList() {
           {/* アクションボタン */}
           <div className="flex justify-start mb-4">
             <ActionButtons
-              onAdd={() => window.location.href = '/routing/shinkitouroku'}
-              onDelete={handleDelete}
+              onAdd={() => {
+                window.location.href = '/routing/shinkitouroku';
+              }}
+              onDelete={() => {
+                window.location.href = '/routing/kubun';
+              }}
             />
           </div>
         </div>
@@ -195,7 +199,11 @@ export default function CategoryList() {
         )}
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <CategoryTable contacts={filteredContacts} onDelete={handleDelete} />
+          <CategoryTable 
+            contacts={filteredContacts} 
+            onDelete={handleDelete}
+            onUpdate={fetchContacts}
+          />
         </div>
       </div>
     </div>
