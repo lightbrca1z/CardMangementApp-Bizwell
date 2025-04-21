@@ -167,88 +167,147 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
 
       // マスターデータの更新または作成
       const upsertMaster = async (table: string, nameField: string, value: string) => {
-        if (!value.trim()) return null;
-
-        const { data: existingData, error: searchError } = await supabase
-          .from(table)
-          .select('*')
-          .eq(nameField, value.trim())
-          .single();
-
-        if (searchError && searchError.code !== 'PGRST116') {
-          throw searchError;
+        const trimmedValue = value.trim();
+        if (!trimmedValue) {
+          console.log(`[${table}] 空の値のため処理をスキップ`);
+          return null;
         }
 
-        if (existingData) {
-          return existingData[`${table}id`];
+        try {
+          console.log(`[${table}] 検索開始:`, { nameField, value: trimmedValue });
+          
+          // まず既存データを検索（nameFieldで検索）
+          const { data: existingData, error: searchError } = await supabase
+            .from(table)
+            .select('*')
+            .eq(nameField, trimmedValue)
+            .limit(1);
+
+          if (searchError) {
+            console.error(`[${table}] 検索エラー:`, searchError);
+            throw new Error(`${table}の検索に失敗しました: ${searchError.message}`);
+          }
+
+          console.log(`[${table}] 検索結果:`, existingData);
+
+          // 既存データが見つかった場合はそのIDを返す
+          if (existingData && existingData.length > 0) {
+            const id = existingData[0][`${table}id`];
+            console.log(`[${table}] 既存データのIDを返却:`, id);
+            return id;
+          }
+
+          console.log(`[${table}] 新規作成を試みます:`, { nameField, value: trimmedValue });
+
+          // 既存データがない場合は新規作成を試みる
+          const { data: newData, error: insertError } = await supabase
+            .from(table)
+            .insert([{ [`${nameField}`]: trimmedValue }])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error(`[${table}] 作成エラー:`, insertError);
+            
+            // unique制約違反の場合は再度検索を試みる
+            if (insertError.code === '23505') {
+              console.log(`[${table}] 重複検出、再検索を試みます`);
+              
+              // まず最新のIDを取得
+              const { data: maxIdData, error: maxIdError } = await supabase
+                .from(table)
+                .select(`${table}id`)
+                .order(`${table}id`, { ascending: false })
+                .limit(1);
+
+              if (maxIdError) {
+                console.error(`[${table}] 最大ID取得エラー:`, maxIdError);
+                throw new Error(`${table}の最大ID取得に失敗しました: ${maxIdError.message}`);
+              }
+
+              const nextId = maxIdData && maxIdData.length > 0 
+                ? parseInt(maxIdData[0][`${table}id`]) + 1 
+                : 1;
+
+              console.log(`[${table}] 次のIDを生成:`, nextId);
+
+              // 明示的なIDを指定して再作成を試みる
+              const { data: retryData, error: retryError } = await supabase
+                .from(table)
+                .insert([{ 
+                  [`${table}id`]: nextId,
+                  [`${nameField}`]: trimmedValue 
+                }])
+                .select()
+                .single();
+
+              if (retryError) {
+                console.error(`[${table}] 再作成エラー:`, retryError);
+                throw new Error(`${table}の作成に失敗しました: ${retryError.message}`);
+              }
+
+              console.log(`[${table}] 再作成成功:`, retryData);
+              return retryData[`${table}id`];
+            }
+            
+            throw new Error(`${table}の作成に失敗しました: ${insertError.message}`);
+          }
+
+          console.log(`[${table}] 新規作成成功:`, newData);
+          return newData[`${table}id`];
+        } catch (error) {
+          console.error(`[${table}] 予期せぬエラー:`, error);
+          if (error instanceof Error) {
+            throw new Error(`${table}の更新中にエラーが発生しました: ${error.message}`);
+          }
+          throw new Error(`${table}の更新中に予期せぬエラーが発生しました`);
         }
-
-        const { data: newData, error: insertError } = await supabase
-          .from(table)
-          .insert([{ [nameField]: value.trim() }])
-          .select()
-          .single();
-
-        if (insertError) throw insertError;
-        return newData[`${table}id`];
       };
 
-      // 各マスターデータのIDを取得
-      const [categoryId, regionId, organizationId, representativeId] = await Promise.all([
-        upsertMaster('category', 'categoryname', formData.category),
-        upsertMaster('region', 'regionname', formData.region),
-        upsertMaster('organization', 'organizationname', formData.organization),
-        upsertMaster('representative', 'representativename', formData.representative)
-      ]);
+      try {
+        // 各マスターデータのIDを取得
+        const results = await Promise.all([
+          upsertMaster('category', 'categoryname', formData.category),
+          upsertMaster('region', 'regionname', formData.region),
+          upsertMaster('organization', 'organizationname', formData.organization),
+          upsertMaster('representative', 'representativename', formData.representative),
+        ]).catch(error => {
+          throw new Error(`マスターデータの更新中にエラーが発生しました: ${error.message}`);
+        });
 
-      const { error: updateError } = await supabase
-        .from('businesscard')
-        .update({
-          phone: formData.phone,
-          mobile: formData.mobile,
-          email: formData.email,
-          imageurl: imageUrl,
+        const [categoryId, regionId, organizationId, representativeId] = results;
+
+        // 名刺データの更新
+        const businesscardData = {
           categoryid: categoryId,
           regionid: regionId,
           organizationid: organizationId,
           representativeid: representativeId,
-        })
-        .eq('businesscardid', card.businesscardid);
+          phone: formData.phone.trim(),
+          mobile: formData.mobile.trim(),
+          email: formData.email.trim(),
+          imageurl: imageUrl,
+        };
 
-      if (updateError) {
-        console.error('データ更新エラー詳細:', {
-          error: updateError,
-          cardId: card.businesscardid,
-          updateData: {
-            phone: formData.phone,
-            mobile: formData.mobile,
-            email: formData.email,
-            imageurl: imageUrl,
-            categoryid: categoryId,
-            regionid: regionId,
-            organizationid: organizationId,
-            representativeid: representativeId,
-          }
-        });
-        
-        let errorMessage = 'データの更新に失敗しました。';
-        if (updateError.message) {
-          errorMessage += ` ${updateError.message}`;
-        }
-        if (updateError.code) {
-          errorMessage += ` (エラーコード: ${updateError.code})`;
-        }
-        throw new Error(errorMessage);
-      }
+        const { error: updateError } = await supabase
+          .from('businesscard')
+          .update(businesscardData)
+          .eq('businesscardid', card.businesscardid);
 
-      onUpdate();
-      onClose();
-    } catch (error) {
-      console.error('更新エラー詳細:', error);
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('予期せぬエラーが発生しました。');
+        if (updateError) {
+          throw new Error(`名刺データの更新に失敗しました: ${updateError.message}`);
+        }
+
+        // 更新成功時のメッセージをシンプルに
+        alert('登録が更新されました');
+        onUpdate();
+        onClose();
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('予期せぬエラーが発生しました');
+        }
       }
     } finally {
       setIsLoading(false);
@@ -269,12 +328,6 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
             <FaTimes size={24} />
           </button>
         </div>
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
-            {error}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -405,6 +458,12 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
               </div>
             </div>
           </div>
+
+          {error && (
+          <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-300">
+            {error}
+          </div>
+        )}
 
           {/* ボタンセクション */}
           <div className="flex justify-end space-x-4 mt-8 pt-6 border-t">

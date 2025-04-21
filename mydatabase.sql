@@ -42,12 +42,11 @@ CREATE TABLE region (
 
 -- INSERT INTO region
 INSERT INTO region (RegionID, RegionName) VALUES
-(1, '岡部'),
-(2, '花見'),
-(3, '金島'),
-(4, '山野'),
-(5, '大川楓'),
-(6, '末吉');
+(1, '1'),
+(2, '2'),
+(3, '3'),
+(4, '4'),
+(5, '5');
 
 
 -- CREATE TABLE representative
@@ -58,11 +57,12 @@ CREATE TABLE representative (
 
 -- INSERT INTO representative
 INSERT INTO representative (RepresentativeID, RepresentativeName) VALUES
-(1, '1'),
-(2, '2'),
-(3, '3'),
-(4, '4'),
-(5, '5');
+(1, '岡部'),
+(2, '花見'),
+(3, '金島'),
+(4, '山野'),
+(5, '大川楓'),
+(6, '末吉');
 
 -- CREATE TABLE "user"
 CREATE TABLE "user" (
@@ -98,9 +98,9 @@ CREATE TABLE businesscard (
 );
 
 -- INSERT INTO businesscard
-INSERT INTO businesscard (BusinessCardID, CategoryID, OrganizationID, OrganizationID2, RepresentativeID, Phone, Mobile, Fax, Email, RegionID, Address, Notes, ImageURL, CreatedAt) VALUES
-(1, 1, 1, NULL, 1, '３３３', '２２２', '２２２', 'aaa2020@gmail.com', 1, '333', '333', NULL, '2025-04-01 02:24:37.143'),
-(2, 2, 2, NULL, 2, '２２２', '１１１', '３３３', 'qqq@gmail.com', 1, '444', '555', NULL, '2025-04-01 02:42:29.858');
+INSERT INTO businesscard (CategoryID, OrganizationID, OrganizationID2, RepresentativeID, Phone, Mobile, Fax, Email, RegionID, Address, Notes, ImageURL, CreatedAt) VALUES
+(1, 1, NULL, 1, '３３３', '２２２', '２２２', 'aaa2020@gmail.com', 1, '333', '333', NULL, '2025-04-01 02:24:37.143'),
+(2, 2, NULL, 2, '２２２', '１１１', '３３３', 'qqq@gmail.com', 1, '444', '555', NULL, '2025-04-01 02:42:29.858');
 
 -- CREATE TABLE user_businesscard
 CREATE TABLE user_businesscard (

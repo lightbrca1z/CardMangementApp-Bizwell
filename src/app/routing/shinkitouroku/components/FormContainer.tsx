@@ -252,14 +252,6 @@ export default function FormContainer() {
         public_url = publicUrlData?.publicUrl || null;
       }
 
-      const { data: existingCard, error: checkError } = await supabase
-        .from('businesscard')
-        .select('*')
-        .eq('email', formData.email.trim())
-        .single();
-
-      if (checkError && checkError.code !== 'PGRST116') throw checkError;
-
       const businesscardData = {
         categoryid: categoryId,
         organizationid: organizationId,
@@ -268,23 +260,38 @@ export default function FormContainer() {
         phone: formData.phone.trim(),
         mobile: formData.mobile.trim(),
         fax: formData.fax.trim(),
+        email: formData.email.trim(),
         address: formData.address.trim(),
         notes: formData.notes.trim(),
         imageurl: public_url,
       };
 
+      // メールアドレスで既存のデータを確認
+      const { data: existingCard, error: checkError } = await supabase
+        .from('businesscard')
+        .select('*')
+        .eq('email', formData.email.trim())
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') throw checkError;
+
+      let result;
       if (existingCard) {
-        const { error: updateError } = await supabase
+        // 既存データの更新
+        result = await supabase
           .from('businesscard')
           .update(businesscardData)
-          .eq('email', formData.email.trim());
-        if (updateError) throw updateError;
+          .eq('email', formData.email.trim())
+          .select();
       } else {
-        const { error: insertError } = await supabase
+        // 新規データの挿入
+        result = await supabase
           .from('businesscard')
-          .insert([{ ...businesscardData, email: formData.email.trim() }]);
-        if (insertError) throw insertError;
+          .insert([businesscardData])
+          .select();
       }
+
+      if (result.error) throw result.error;
 
       alert('登録が完了しました');
       setFormData({
