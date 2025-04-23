@@ -122,15 +122,6 @@ export default function Home() {
           </ul>
         </div>
         <div className="sm:w-1/3 w-full flex justify-center relative mt-4 sm:mt-0">
-          <div className="absolute z-0 -top-[20%] left-0 w-full h-full">
-            <Image 
-              src="/images/吹き出し画像.png" 
-              alt="吹き出し背景" 
-              width={1000} 
-              height={1000}
-              className="object-contain w-full h-full"
-            />
-          </div>
           <div className="relative z-10">
             <Image 
               src="/images/robot.png" 
