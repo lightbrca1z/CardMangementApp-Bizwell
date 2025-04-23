@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY! // Service Role Key を使う (connectOrCreate 相当で必要)
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
 // ---------------------

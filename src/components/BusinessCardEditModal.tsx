@@ -309,26 +309,23 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
 
   const fetchMaxId = async (table: string) => {
     try {
-      const { data: maxIdData, error: maxIdError } = await supabase
+      const { data: maxIdData, error } = await supabase
         .from(table)
         .select(`${table}id`)
         .order(`${table}id`, { ascending: false })
         .limit(1);
 
-      if (maxIdError) {
-        throw maxIdError;
-      }
+      if (error) throw error;
 
       if (maxIdData && maxIdData.length > 0) {
         const idField = `${table}id` as keyof MaxIdData;
-        const nextId = (maxIdData[0][idField] as number) + 1;
+        const nextId = (maxIdData[0] as MaxIdData)[idField] as number + 1;
         console.log(`[${table}] 次のIDを生成:`, nextId);
         return nextId;
       }
-
       return 1;
     } catch (error) {
-      console.error(`[${table}] 最大ID取得エラー:`, error);
+      console.error(`[${table}] ID取得エラー:`, error);
       return 1;
     }
   };
@@ -462,7 +459,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
               </div>
               <div className="flex-1 min-w-0">
                 <label className="inline-flex items-center px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition-colors text-sm sm:text-base">
-                  <FaUpload className="mr-2" size={14} className="sm:size-4" />
+                  <FaUpload className="mr-2 sm:size-4" size={14} />
                   画像を選択
                   <input
                     type="file"
@@ -491,7 +488,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
               onClick={onClose}
               className="flex items-center justify-center px-4 sm:px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm sm:text-base"
             >
-              <FaTimesCircle className="mr-2" size={14} className="sm:size-4" />
+              <FaTimesCircle className="mr-2 sm:size-4" size={14} />
               キャンセル
             </button>
             <button
@@ -499,7 +496,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
               disabled={isLoading}
               className="flex items-center justify-center px-4 sm:px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
             >
-              <FaSave className="mr-2" size={14} className="sm:size-4" />
+              <FaSave className="mr-2 sm:size-4" size={14} />
               {isLoading ? '更新中...' : '更新'}
             </button>
           </div>
