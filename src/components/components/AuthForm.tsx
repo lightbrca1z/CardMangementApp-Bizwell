@@ -48,7 +48,7 @@ export default function AuthForm() {
             placeholder="メールアドレス"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full px-4 py-2 rounded-full border bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div>
@@ -57,7 +57,7 @@ export default function AuthForm() {
             placeholder="パスワード"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-2 rounded-full border focus:outline-none focus:ring-2 focus:ring-purple-400"
+            className="w-full px-4 py-2 rounded-full border bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
           />
         </div>
         <div className="flex justify-between">
