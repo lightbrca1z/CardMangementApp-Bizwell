@@ -56,16 +56,16 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
   useEffect(() => {
     if (card) {
       console.log('Updating form data with card:', card);
-      setFormData({
-        phone: card.phone || '',
-        mobile: card.mobile || '',
-        email: card.email || '',
-        category: card.category?.categoryname || '',
-        region: card.region?.regionname || '',
-        organization: card.organization?.organizationname || '',
-        representative: card.representative?.representativename || '',
-      });
-      if (card.imageurl) {
+    setFormData({
+      phone: card.phone || '',
+      mobile: card.mobile || '',
+      email: card.email || '',
+      category: card.category?.categoryname || '',
+      region: card.region?.regionname || '',
+      organization: card.organization?.organizationname || '',
+      representative: card.representative?.representativename || '',
+    });
+    if (card.imageurl) {
         // 画像URLを直接設定
         setSignedUrl(card.imageurl);
         console.log('Setting image URL:', card.imageurl);

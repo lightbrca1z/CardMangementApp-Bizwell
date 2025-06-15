@@ -72,7 +72,7 @@ export default function ContactTable({ contacts, onDelete }: ContactTableProps) 
         organization: Array.isArray(latestContact.organization) ? latestContact.organization[0] ?? null : latestContact.organization ?? null,
         representative: Array.isArray(latestContact.representative) ? latestContact.representative[0] ?? null : latestContact.representative ?? null,
       });
-      setIsEditModalOpen(true);
+    setIsEditModalOpen(true);
     } catch (error) {
       console.error('Error in handleEdit:', error);
       alert('データの取得中にエラーが発生しました');

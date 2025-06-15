@@ -28,17 +28,23 @@ export const openImagePopup = async (imageurl: string | null | undefined) => {
       return;
     }
 
-    const popup = window.open('', '_blank', 'width=600,height=800,scrollbars=yes,resizable=yes');
-    if (popup) {
-      popup.document.write(`
-        <html>
-          <head><title>名刺画像</title></head>
-          <body style="margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;">
-            <img src="${data.signedUrl}" alt="名刺画像" style="max-width:100%;max-height:100%;" />
-          </body>
-        </html>
-      `);
-      popup.document.close();
+    // モバイルデバイスの場合は新しいタブで開く
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      window.open(data.signedUrl, '_blank');
+    } else {
+      // デスクトップの場合はポップアップで表示
+      const popup = window.open('', '_blank', 'width=600,height=800,scrollbars=yes,resizable=yes');
+      if (popup) {
+        popup.document.write(`
+          <html>
+            <head><title>名刺画像</title></head>
+            <body style="margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;">
+              <img src="${data.signedUrl}" alt="名刺画像" style="max-width:100%;max-height:100%;" />
+            </body>
+          </html>
+        `);
+        popup.document.close();
+      }
     }
   } catch (error) {
     console.error('画像URLの処理中にエラーが発生しました:', error);
