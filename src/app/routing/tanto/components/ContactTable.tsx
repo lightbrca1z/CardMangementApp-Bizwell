@@ -61,7 +61,17 @@ export default function ContactTable({ contacts, onDelete }: ContactTableProps) 
       }
 
       console.log('Fetched latest contact data:', latestContact);
-      setSelectedCard(latestContact);
+      setSelectedCard({
+        businesscardid: latestContact.businesscardid,
+        phone: latestContact.phone,
+        mobile: latestContact.mobile,
+        email: latestContact.email,
+        imageurl: latestContact.imageurl,
+        category: Array.isArray(latestContact.category) ? latestContact.category[0] ?? null : latestContact.category ?? null,
+        region: Array.isArray(latestContact.region) ? latestContact.region[0] ?? null : latestContact.region ?? null,
+        organization: Array.isArray(latestContact.organization) ? latestContact.organization[0] ?? null : latestContact.organization ?? null,
+        representative: Array.isArray(latestContact.representative) ? latestContact.representative[0] ?? null : latestContact.representative ?? null,
+      });
       setIsEditModalOpen(true);
     } catch (error) {
       console.error('Error in handleEdit:', error);
