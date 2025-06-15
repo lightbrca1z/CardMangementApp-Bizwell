@@ -13,11 +13,11 @@ export default function SearchFieldSelect({ value, onChange, fields }: SearchFie
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="border rounded px-2 py-1"
+      className="border rounded px-2 py-1 text-black"
     >
-      <option value="all">すべて</option>
+      <option value="all" className="text-black">すべて</option>
       {fields.map((field) => (
-        <option key={field.value} value={field.value}>
+        <option key={field.value} value={field.value} className="text-black">
           {field.label}
         </option>
       ))}

@@ -29,9 +29,44 @@ export default function ContactTable({ contacts, onDelete }: ContactTableProps) 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleEdit = (contact: Contact) => {
-    setSelectedCard(contact);
-    setIsEditModalOpen(true);
+  const handleEdit = async (contact: Contact) => {
+    try {
+      // データベースから最新の情報を取得
+      const { data: latestContact, error } = await supabase
+        .from('businesscard')
+        .select(`
+          businesscardid,
+          phone,
+          mobile,
+          email,
+          imageurl,
+          category:categoryid (categoryname),
+          region:regionid (regionname),
+          organization:organizationid (organizationname),
+          representative:representativeid (representativename)
+        `)
+        .eq('businesscardid', contact.businesscardid)
+        .single();
+
+      if (error) {
+        console.error('Error fetching contact data:', error);
+        alert('データの取得に失敗しました');
+        return;
+      }
+
+      if (!latestContact) {
+        console.error('Contact not found');
+        alert('データが見つかりませんでした');
+        return;
+      }
+
+      console.log('Fetched latest contact data:', latestContact);
+      setSelectedCard(latestContact);
+      setIsEditModalOpen(true);
+    } catch (error) {
+      console.error('Error in handleEdit:', error);
+      alert('データの取得中にエラーが発生しました');
+    }
   };
 
   const handleUpdate = () => {
@@ -217,7 +252,11 @@ export default function ContactTable({ contacts, onDelete }: ContactTableProps) 
           card={selectedCard}
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
-          onUpdate={handleUpdate}
+          onUpdate={() => {
+            console.log('Updating contact:', selectedCard);
+            setIsEditModalOpen(false);
+            onDelete(selectedCard.businesscardid);
+          }}
         />
       )}
     </div>

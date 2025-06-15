@@ -17,7 +17,7 @@ export default function SearchBarWithButton({ searchQuery, onSearchChange, onSea
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         placeholder="検索..."
-        className="border rounded px-2 py-1"
+        className="border rounded px-2 py-1 text-black"
       />
       <Button onClick={onSearchClick} className="bg-blue-500 text-white hover:bg-blue-600">
         検索

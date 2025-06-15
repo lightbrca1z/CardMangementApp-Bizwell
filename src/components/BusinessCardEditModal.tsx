@@ -54,28 +54,24 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    setFormData({
-      phone: card.phone || '',
-      mobile: card.mobile || '',
-      email: card.email || '',
-      category: card.category?.categoryname || '',
-      region: card.region?.regionname || '',
-      organization: card.organization?.organizationname || '',
-      representative: card.representative?.representativename || '',
-    });
-    if (card.imageurl) {
-      const publicUrlPrefix = "https://zfvgwjtrdozgdxugkxtt.supabase.co/storage/v1/object/public/images/";
-      if (card.imageurl.startsWith(publicUrlPrefix)) {
-        const path = card.imageurl.replace(publicUrlPrefix, "");
-        supabase.storage.from('images').createSignedUrl(path, 60 * 60)
-          .then(({ data, error }) => {
-            if (!error && data?.signedUrl) {
-              setSignedUrl(data.signedUrl);
-            }
-          });
+    if (card) {
+      console.log('Updating form data with card:', card);
+      setFormData({
+        phone: card.phone || '',
+        mobile: card.mobile || '',
+        email: card.email || '',
+        category: card.category?.categoryname || '',
+        region: card.region?.regionname || '',
+        organization: card.organization?.organizationname || '',
+        representative: card.representative?.representativename || '',
+      });
+      if (card.imageurl) {
+        // 画像URLを直接設定
+        setSignedUrl(card.imageurl);
+        console.log('Setting image URL:', card.imageurl);
       }
     }
-  }, [card]);
+  }, [card, isOpen]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -359,7 +355,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black"
                 />
               </div>
 
@@ -371,7 +367,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.region}
                   onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black"
                 />
               </div>
 
@@ -383,7 +379,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.organization}
                   onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black"
                 />
               </div>
 
@@ -395,7 +391,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.representative}
                   onChange={(e) => setFormData({ ...formData, representative: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black"
                 />
               </div>
             </div>
@@ -412,7 +408,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black"
                 />
               </div>
 
@@ -424,7 +420,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="text"
                   value={formData.mobile}
                   onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black placeholder-gray-400"
                 />
               </div>
 
@@ -436,7 +432,7 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full p-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-black placeholder-gray-400"
                 />
               </div>
             </div>
@@ -453,6 +449,10 @@ export default function BusinessCardEditModal({ card, isOpen, onClose, onUpdate 
                       src={previewUrl || signedUrl || ''}
                       alt="名刺画像"
                       className="w-32 h-32 sm:w-48 sm:h-48 object-cover rounded-lg shadow-md"
+                      onError={(e) => {
+                        console.error('画像の読み込みに失敗しました:', e);
+                        setSignedUrl(null);
+                      }}
                     />
                   </div>
                 )}

@@ -157,7 +157,7 @@ export default function ContactList() {
             <div className="flex flex-col items-end space-y-4">
               {/* 検索フィールド選択 */}
               <div className="w-full md:w-1/3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">検索項目</label>
+                <label className="block text-sm font-medium text-black mb-2">検索項目</label>
                 <SearchFieldSelect
                   fields={searchFields}
                   value={searchField}
@@ -167,7 +167,7 @@ export default function ContactList() {
 
               {/* 検索バー */}
               <div className="w-full md:w-1/3">
-                <label className="block text-sm font-medium text-gray-700 mb-2">検索キーワード</label>
+                <label className="block text-sm font-medium text-black mb-2">検索キーワード</label>
                 <div className="flex gap-2">
                   <SearchBarWithButton
                     searchQuery={searchQuery}
