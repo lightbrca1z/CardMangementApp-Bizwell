@@ -170,23 +170,23 @@ export default function AreaTable({ areas, onDelete }: AreaTableProps) {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-gray-500">区分:</span>
-                  <span className="ml-2">{area.category?.categoryname || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{area.category?.categoryname || '-'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">エリア:</span>
-                  <span className="ml-2">{area.region?.regionname || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{area.region?.regionname || '-'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">TEL:</span>
-                  <span className="ml-2">{area.phone || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{area.phone || '-'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">携帯:</span>
-                  <span className="ml-2">{area.mobile || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{area.mobile || '-'}</span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-gray-500">メール:</span>
-                  <span className="ml-2">{area.email || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{area.email || '-'}</span>
                 </div>
               </div>
             </div>

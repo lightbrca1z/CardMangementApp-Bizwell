@@ -160,23 +160,23 @@ export default function OrganizationTable({ organizations, onDelete, onUpdate }:
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-gray-500">区分:</span>
-                  <span className="ml-2">{org.category?.categoryname || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{org.category?.categoryname || '-'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">エリア:</span>
-                  <span className="ml-2">{org.region?.regionname || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{org.region?.regionname || '-'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">TEL:</span>
-                  <span className="ml-2">{org.phone || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{org.phone || '-'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">携帯:</span>
-                  <span className="ml-2">{org.mobile || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{org.mobile || '-'}</span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-gray-500">メール:</span>
-                  <span className="ml-2">{org.email || '-'}</span>
+                  <span className="ml-2 text-black font-medium">{org.email || '-'}</span>
                 </div>
               </div>
             </div>

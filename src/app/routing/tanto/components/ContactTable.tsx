@@ -230,26 +230,26 @@ export default function ContactTable({ contacts, onDelete }: ContactTableProps) 
                   </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="text-gray-500">区分:</span>
-                  <span className="ml-2">{contact.category?.categoryname || '-'}</span>
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700 w-20">区分:</span>
+                  <span className="text-black font-medium">{contact.category?.categoryname || '-'}</span>
                 </div>
-                <div>
-                  <span className="text-gray-500">エリア:</span>
-                  <span className="ml-2">{contact.region?.regionname || '-'}</span>
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700 w-20">エリア:</span>
+                  <span className="text-black font-medium">{contact.region?.regionname || '-'}</span>
                 </div>
-                <div>
-                  <span className="text-gray-500">TEL:</span>
-                  <span className="ml-2">{contact.phone || '-'}</span>
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700 w-20">TEL:</span>
+                  <span className="text-black font-medium">{contact.phone || '-'}</span>
                 </div>
-                <div>
-                  <span className="text-gray-500">携帯:</span>
-                  <span className="ml-2">{contact.mobile || '-'}</span>
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700 w-20">携帯:</span>
+                  <span className="text-black font-medium">{contact.mobile || '-'}</span>
                 </div>
-                <div className="col-span-2">
-                  <span className="text-gray-500">メール:</span>
-                  <span className="ml-2">{contact.email || '-'}</span>
+                <div className="flex items-center">
+                  <span className="font-medium text-gray-700 w-20">メール:</span>
+                  <span className="text-black font-medium">{contact.email || '-'}</span>
                 </div>
               </div>
             </div>
