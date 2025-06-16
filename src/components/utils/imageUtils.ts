@@ -12,27 +12,44 @@ export const openImagePopup = async (imageurl: string | null | undefined) => {
   }
 
   try {
-    // URLからパスを抽出
-    let path = imageurl;
-    const urlObj = new URL(imageurl);
-    const pathParts = urlObj.pathname.split('/');
-    const storageIndex = pathParts.indexOf('storage');
-    if (storageIndex !== -1 && pathParts[storageIndex + 1] === 'v1' && pathParts[storageIndex + 2] === 'object') {
-      // SupabaseのストレージURLの場合
-      path = pathParts.slice(storageIndex + 5).join('/');
+    // 公開URLの場合はそのまま表示
+    if (imageurl.startsWith('http') && imageurl.includes('/storage/v1/object/public/')) {
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        window.open(imageurl, '_blank');
+      } else {
+        const popup = window.open('', '_blank', 'width=600,height=800,scrollbars=yes,resizable=yes');
+        if (popup) {
+          popup.document.write(`
+            <html>
+              <head><title>名刺画像</title></head>
+              <body style="margin:0;padding:0;display:flex;justify-content:center;align-items:center;height:100vh;">
+                <img src="${imageurl}" alt="名刺画像" style="max-width:100%;max-height:100%;" />
+              </body>
+            </html>
+          `);
+          popup.document.close();
+        }
+      }
+      return;
     }
 
-    const { data, error } = await supabase.storage.from('images').createSignedUrl(path, 60 * 60);
+    // ストレージパスの場合のみ署名付きURLを生成
+    let bucket = 'images';
+    let path = imageurl;
+    if (imageurl.startsWith('images/')) {
+      path = imageurl.replace(/^images\//, '');
+    }
+
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
     if (error || !data?.signedUrl) {
+      console.error('Supabase storage error:', error);
       alert('署名付きURLの取得に失敗しました');
       return;
     }
 
-    // モバイルデバイスの場合は新しいタブで開く
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       window.open(data.signedUrl, '_blank');
     } else {
-      // デスクトップの場合はポップアップで表示
       const popup = window.open('', '_blank', 'width=600,height=800,scrollbars=yes,resizable=yes');
       if (popup) {
         popup.document.write(`
@@ -50,4 +67,4 @@ export const openImagePopup = async (imageurl: string | null | undefined) => {
     console.error('画像URLの処理中にエラーが発生しました:', error);
     alert('画像の表示に失敗しました');
   }
-}; 
+};

@@ -188,17 +188,17 @@ export default function FormContainer() {
       // 認証チェック
       await checkAuth();
 
-      // バリデーション実行
-      const validationResult = validateForm(formData);
-      if (!validationResult.isValid) {
-        const errorMessage = validationResult.errors
-          .map(error => `${getFieldLabel(error.field)}: ${error.message}`)
-          .join('\n');
-        setError(errorMessage);
-        setIsSubmitting(false);
-        alert('入力チェックのエラーが表示されました！');
-        return;
-      }
+    // バリデーション実行
+    const validationResult = validateForm(formData);
+    if (!validationResult.isValid) {
+      const errorMessage = validationResult.errors
+        .map(error => `${getFieldLabel(error.field)}: ${error.message}`)
+        .join('\n');
+      setError(errorMessage);
+      setIsSubmitting(false);
+      alert('入力チェックのエラーが表示されました！');
+      return;
+    }
 
       const requiredFields = ['category', 'organization', 'representative', 'region'];
       const missingFields = requiredFields.filter(key => !formData[key as keyof FormData]);
