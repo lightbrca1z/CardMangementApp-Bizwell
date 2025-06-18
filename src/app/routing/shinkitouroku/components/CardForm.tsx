@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Card } from '@/types/card';
 
@@ -7,7 +9,6 @@ interface CardFormProps {
 
 export const CardForm: React.FC<CardFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState<Card>({
-    id: null, // 新規登録時はidをnullに設定
     name: '',
     company: '',
     position: '',
