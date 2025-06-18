@@ -11,11 +11,11 @@ export default function Header() {
         <div className="flex flex-col sm:flex-row justify-between items-center py-4">
           <div className="mb-4 sm:mb-0">
             <Image 
-              src="/images/logo.png" 
+              src="/images/Logo1.png" 
               alt="ビズウェルロゴ" 
               width={200} 
-              height={80}
-              className="object-contain"
+              height={40}
+              className="object-contain w-[150px] sm:w-[200px]"
             />
           </div>
           <nav className="w-full sm:w-auto">

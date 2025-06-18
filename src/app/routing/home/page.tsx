@@ -41,10 +41,10 @@ export default function Home() {
       <header className="w-full flex justify-center items-center max-w-6xl relative mb-4 sm:mb-8">
         <div className="flex justify-center relative z-10">
           <Image 
-            src="/images/logo.png" 
+            src="/images/Logo1.png" 
             alt="ビズウェルロゴ" 
             width={200} 
-            height={80}
+            height={40}
             className="object-contain w-[150px] sm:w-[200px]"
           />
         </div>
