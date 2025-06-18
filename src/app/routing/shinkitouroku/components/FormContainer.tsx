@@ -188,17 +188,17 @@ export default function FormContainer() {
       // 認証チェック
       await checkAuth();
 
-    // バリデーション実行
-    const validationResult = validateForm(formData);
-    if (!validationResult.isValid) {
-      const errorMessage = validationResult.errors
-        .map(error => `${getFieldLabel(error.field)}: ${error.message}`)
-        .join('\n');
-      setError(errorMessage);
-      setIsSubmitting(false);
-      alert('入力チェックのエラーが表示されました！');
-      return;
-    }
+      // バリデーション実行
+      const validationResult = validateForm(formData);
+      if (!validationResult.isValid) {
+        const errorMessage = validationResult.errors
+          .map(error => `${getFieldLabel(error.field)}: ${error.message}`)
+          .join('\n');
+        setError(errorMessage);
+        setIsSubmitting(false);
+        alert('入力チェックのエラーが表示されました！');
+        return;
+      }
 
       const requiredFields = ['category', 'organization', 'representative', 'region'];
       const missingFields = requiredFields.filter(key => !formData[key as keyof FormData]);
@@ -265,30 +265,11 @@ export default function FormContainer() {
         imageurl: public_url,
       };
 
-      // メールアドレスで既存のデータを確認
-      const { data: existingCard, error: checkError } = await supabase
+      // メールアドレスで既存のデータを確認する処理を削除し、必ず新規登録
+      const result = await supabase
         .from('businesscard')
-        .select('*')
-        .eq('email', formData.email.trim())
-        .single();
-
-      if (checkError && checkError.code !== 'PGRST116') throw checkError;
-
-      let result;
-      if (existingCard) {
-        // 既存データの更新
-        result = await supabase
-          .from('businesscard')
-          .update(businesscardData)
-          .eq('email', formData.email.trim())
-          .select();
-      } else {
-        // 新規データの挿入
-        result = await supabase
-          .from('businesscard')
-          .insert([businesscardData])
-          .select();
-      }
+        .insert([businesscardData])
+        .select();
 
       if (result.error) throw result.error;
 
